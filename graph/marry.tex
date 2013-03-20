@@ -1,0 +1,61 @@
+\subsection{稳定婚姻}
+	假定有$n$个男生和$ｍ$个女生，理想的拍拖状态就是对于每对情侣$(a,b)$，找不到另一对情侣$(c,d)$使得$c$更喜欢$b$,$b$也更喜欢$c$，同理，对$a$来说也没有$(e,f)$使得$a$更喜欢$e$而$e$更喜欢$a$,当然最后会有一些人落单。这样子一个状态可以称为理想拍拖状态，它也有一个专业的名词叫稳定婚姻。\\
+	求解这个问题可以用一个专有的算法，延迟认可算法，其核心就是让每个男生按自己喜欢的顺序逐个向女生表白，例如leokan向一个女生求爱，这个过程中，若这个女生没有男朋友，那么这个女生就暂时成为leokan的女朋友，或这个女生喜欢她现有男朋友的程度没有喜欢leokan高，这个女生也暂时成为leokan的女朋友，而她原有的男朋友则再将就找下一个次喜欢的女生来当女朋友。
+	\begin{lstlisting}[language=c++]
+#include<string.h>
+#include<stdio.h>
+#define N 1050
+int boy[N][N];
+int girl[N][N];
+int ans[N];
+int cur[N];
+int n;
+void getMarry(int g)
+{
+	for (int i=ans[g]+1;i<n;i++)
+	{
+		int b=girl[g][i]-1;
+		if (cur[b]<0)
+		{
+			ans[g]=i;
+			cur[b]=g;
+			return;
+		}
+		int og=cur[b];
+		if (boy[b][og] > boy[b][g])
+		{
+			cur[b]=g;
+			ans[g]=i;
+			getMarry(og);
+			return;
+		}
+	}
+};
+int main()
+{
+	int t,a;
+	scanf("%d",&t);
+	while(t--)
+	{
+		memset(girl,0,sizeof(girl));
+		memset(boy,0,sizeof(boy));
+		scanf("%d",&n);
+		for (int i=0;i<n;i++)
+			for (int j=0;j<n;j++)
+				scanf("%d",&girl[i][j]);
+		for (int i=0;i<n;i++)
+			for (int j=0;j<n;j++)
+			{
+				scanf("%d",&a);
+				boy[i][a-1]=j;
+			}
+		memset(cur,0xff,sizeof(cur));
+		memset(ans,0xff,sizeof(ans));
+		for (int i=0;i<n;i++)
+			getMarry(i);
+		for (int i=0;i<n;i++)
+			printf("%d\n",girl[i][ans[i]]);
+	}
+	return 0;
+}
+	\end{lstlisting}

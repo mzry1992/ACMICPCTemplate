@@ -1,0 +1,45 @@
+\subsection{位运算}
+	\subsubsection{基本操作}
+	注意括号\\
+		\begin{table}[htbp]
+		\centering
+		\begin{tabular}{l|l|l}
+		\toprule
+		功能 & 示例 & 位运算\\
+		\midrule
+		去掉最后一位		  & $(101101\rightarrow 10110)$		   & x shr 1\\
+		在最后加一个$0$		 & $(101101\rightarrow1011010)$		 & x shl 1\\
+		在最后加一个$1$		 & $(101101\rightarrow1011011)$		 & x shl 1+1\\
+		把最后一位变成$1$	   & $(101100\rightarrow101101)$		  & x or 1\\
+		把最后一位变成$0$	   & $(101101\rightarrow101100)$		  & x or 1-1\\
+		最后一位取反		  & $(101101\rightarrow101100)$		  & x xor 1\\
+		把右数第$k$位变成$1$	  & $(101001\rightarrow101101,k=3)$	  & x or (1 shl (k-1))\\
+		把右数第$k$位变成$0$	  & $(101101\rightarrow101001,k=3)$	  & x and not (1 shl (k-1))\\
+		右数第$k$位取反		 & $(101001\rightarrow101101,k=3)$	  & x xor (1 shl (k-1))\\
+		取末三位			  & $(1101101\rightarrow101)$			& x and 7\\
+		取末$k$位			   & $(1101101\rightarrow1101,k=5)$	   & x and (1 shl k-1)\\
+		取右数第$k$位		   & $(1101101\rightarrow1,k=4)$		  & x shr (k-1) and 1\\
+		把末$k$位变成$1$		  & $(101001\rightarrow101111,k=4)$	  & x or (1 shl k-1)\\
+		末$k$位取反			 & $(101001\rightarrow100110,k=4)$	  & x xor (1 shl k-1)\\
+		把右边连续的$1$变成$0$	& $(100101111\rightarrow100100000)$	& x and (x+1)\\
+		把右起第一个$0$变成$1$	& $(100101111\rightarrow100111111)$	& x or (x+1)\\
+		把右边连续的$0$变成$1$	& $(11011000\rightarrow11011111)$	  & x or (x-1)\\
+		取右边连续的$1$		 & $(100101111\rightarrow1111)$		 & (x xor (x+1)) shr 1\\
+		去掉右起第一个$1$的左边 & $(100101000\rightarrow1000)$		 & x and (x xor (x-1))\\
+		\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\subsubsection{枚举长为$n$含$k$个$1$的$01$串}
+	\begin{lstlisting}[language=c++]
+int n = 5,k = 3;
+for (int s = (1 << k)-1,u = 1 << n; s < u;)
+{
+	for (int i = 0;i < n;i++)
+		printf("%d",(((s>>(n-1-i))&1) == 1));
+	printf("\n");
+	
+	int b = s & -s;
+	s = (s+b)|(((s^(s+b))>>2)/b);
+}
+	\end{lstlisting}

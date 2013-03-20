@@ -1,0 +1,70 @@
+\subsection{矩阵}
+	乘法的时候将$B$数组转置一下然后$C[i][j] = \sum{A[i][k]\times B[j][k]}$会有奇效。
+	\begin{lstlisting}[language=c++]
+struct Matrix
+{
+	int a[52][52];
+	void clear()
+	{
+		memset(a,0,sizeof(a));
+	}
+	int det(int n)//求行列式的值模上一个数，需要预处理逆元
+	{
+		for (int i = 0;i < n;i++)
+			for (int j = 0;j < n;j++)
+				a[i][j] = (a[i][j]%mod+mod)%mod;
+		int res = 1;
+		for (int i = 0;i < n;i++)
+		{
+			for (int j = i;j < n;j++)
+				if (a[j][i] != 0)
+				{
+					for (int k = i;k < n;k++)
+						swap(a[i][k],a[j][k]);
+					if (i != j)
+						res = (res+mod)%mod;
+					break;
+				}
+			if (a[i][i] == 0)
+			{
+				res = -1;//不存在
+				break;
+			}
+			for (int j = i+1;j < n;j++)
+			{
+				int mut = (a[j][i]*inv[a[i][i]])%mod;
+				for (int k = i;k < n;k++)
+					a[j][k] = (a[j][k]-(a[i][k]*mut)%mod+mod)%mod;
+			}
+			res = (res*a[i][i])%mod;
+		}
+		return res;
+	}
+	Matrix operator * (const Matrix &b)const
+	{
+		Matrix res;
+		for (int i = 0; i < 52; i++)
+			for (int j = 0; j < 52; j++)
+			{
+				res.a[i][j] = 0;
+				for (int k = 0; k < 52; k++)
+					res.a[i][j] += a[i][k] * b.a[k][j];
+			}
+		return res;
+	}
+	Matrix operator ^ (int y)const
+	{
+		Matrix res, x;
+		for (int i = 0; i < 52; i++)
+		{
+			for (int j = 0; j < 52; j++)
+				res.a[i][j] = 0, x.a[i][j] = a[i][j];
+			res.a[i][i] = 1;
+		}
+		for (; y; y >>= 1, x = x * x)
+			if (y & 1)
+				res = res * x;
+		return res;
+	}
+};
+	\end{lstlisting}

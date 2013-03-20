@@ -1,0 +1,144 @@
+\subsection{三维几何}
+	\subsubsection{Point定义}
+		\begin{lstlisting}[language=c++]
+struct Point3D
+{
+	double x,y,z;
+	Point3D() {}
+	Point3D(double _x,double _y,double _z)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+	Point3D operator -(const Point3D& b)const
+	{
+		return Point3D(x-b.x,y-b.y,z-b.z);
+	}
+	Point3D operator *(const Point3D& b)const
+	{
+		return Point3D(y*b.z-z*b.y,z*b.x-x*b.z,x*b.y-y*b.x);
+	}
+	double operator &(const Point3D& b)const
+	{
+		return x*b.x+y*b.y+z*b.z;
+	}
+};
+//模
+double Norm(Point3D p)
+{
+	return sqrt(p&p);
+}
+//`绕单位向量$V$旋转$\theta$角度`
+Point3D Trans(Point3D pa,Point3D V,double theta)
+{
+	double s = sin(theta);
+	double c = cos(theta);
+	double x,y,z;
+	x = V.x;
+	y = V.y;
+	z = V.z;
+	Point3D pp = 
+	Point3D(
+		(x*x*(1-c)+c)*pa.x+(x*y*(1-c)-z*s)*pa.y+(x*z*(1-c)+y*s)*pa.z,
+		(y*x*(1-c)+z*s)*pa.x+(y*y*(1-c)+c)*pa.y+(y*z*(1-c)-x*s)*pa.z,
+		(x*z*(1-c)-y*s)*pa.x+(y*z*(1-c)+x*s)*pa.y+(z*z*(1-c)+c)*pa.z);
+	return pp;
+}
+		\end{lstlisting}
+	
+	\subsubsection{经度纬度转换}
+		直角坐标系与极坐标系转换：\\
+		\[\begin{cases}
+		x = r\times sin\theta \times cos\varphi \\
+		y = r\times sin\theta \times sin\varphi \\
+		z = r\times cos\theta\\
+		\end{cases}
+		\begin{cases}
+		r = \sqrt{x\times 2 + y\times 2 + z\times 2}\\
+		\varphi = arctan(\frac{y}{x})\\
+		\theta = arccos(\frac{z}{r})\\
+		\end{cases}r\in [0,+\infty),\varphi \in [0,2\pi],\theta \in [0,\pi] \]
+		经度维度转换（$lat1\in (-\frac{\pi}{2},\frac{\pi}{2}), lng1\in (-\pi,\pi)$）
+		\begin{lstlisting}[language=c++]
+Point3D getPoint3D(double lat,double lng,double r)
+{
+	lat += pi/2;
+	lng += pi;
+	return 
+		Point3D(r*sin(lat)*cos(lng),r*sin(lat)*sin(lng),r*cos(lat));
+}
+		\end{lstlisting}
+		
+　　
+	\subsubsection{判断：直线相交}
+		\begin{lstlisting}[language=c++]
+bool LineIntersect(Line3D L1, Line3D L2) 
+{ 
+	Point3D s = L1.s-L1.e; 
+	Point3D e = L2.s-L2.e; 
+	Point3D p  = s*e; 
+	if (ZERO(p)) return false;	  //是否平行 
+	p = (L2.s-L1.e)*(L1.s-L1.e); 
+	return ZERO(p&L2.e);		 //是否共面 
+} 
+		\end{lstlisting}
+		
+	\subsubsection{判断：线段相交}
+	需要先判断是否在一个平面上：
+	\begin{lstlisting}[language=c++]
+bool inter(Point a,Point b,Point c,Point d)
+{
+	Point ret = (a-b)*(c-d);
+	Point t1 = (b-a)*(c-a);
+	Point t2 = (b-a)*(d-a);
+	Point t3 = (d-c)*(a-c);
+	Point t4 = (d-c)*(b-c);
+	return sgn(t1&ret)*sgn(t2&ret) < 0 &&
+				 sgn(t3&ret)*sgn(t4&ret) < 0;
+}
+	\end{lstlisting}
+	
+	\subsubsection{判断：三维向量是否为0}
+		\begin{lstlisting}[language=c++]
+inline bool ZERO(Point3D p)
+{ 
+	return (ZERO(p.x) && ZERO(p.y) && ZERO(p.z)); 
+} 
+		\end{lstlisting}
+				
+	\subsubsection{判断：点在直线上}
+		\begin{lstlisting}[language=c++]
+bool OnLine(Point3D p, Line3D L)
+{ 
+	return ZERO((p-L.s)*(L.e-L.s)); 
+} 
+		\end{lstlisting}
+		
+	\subsubsection{判断：点在线段上}
+		\begin{lstlisting}[language=c++]
+bool OnSeg(Point3D p, Line3D L)
+{ 
+	return (ZERO((L.s-p)*(L.e-p)) && 
+		EQ(Norm(p-L.s)+Norm(p-L.e),Norm(L.e-L.s))); 
+} 
+		\end{lstlisting}
+		
+	\subsubsection{距离：点到直线}
+		\begin{lstlisting}[language=c++]
+double Distance(Point3D p, Line3D L)
+{ 
+	return (Norm((p-L.s)*(L.e-L.s))/Norm(L.e-L.s)); 
+} 
+		\end{lstlisting}
+
+	\subsubsection{夹角}
+		返回值是$[0,\pi]$之间的弧度
+		\begin{lstlisting}[language=c++]
+double Inclination(Line3D L1, Line3D L2) 
+{ 
+	Point3D u = L1.e - L1.s; 
+	Point3D v = L2.e - L2.s; 
+	return acos( (u & v) / (Norm(u)*Norm(v)) ); 
+} 
+		\end{lstlisting}

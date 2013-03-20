@@ -1,0 +1,200 @@
+\subsection{后缀数组}
+	\subsubsection{DC3}
+		所有下标都是0~n-1，height[0]无意义。
+		\begin{lstlisting}[language=c++]
+//所有相关数组都要开三倍
+const int maxn = 300010;
+# define F(x) ((x)/3+((x)%3==1?0:tb))
+# define G(x) ((x)<tb?(x)*3+1:((x)-tb)*3+2)
+int wa[maxn * 3], wb[maxn * 3], wv[maxn * 3], ws[maxn * 3];
+int c0(int *r, int a, int b)
+{
+	return 
+	r[a] == r[b] && r[a + 1] == r[b + 1] && r[a + 2] == r[b + 2];
+}
+int c12(int k, int *r, int a, int b)
+{
+	if (k == 2) 
+		return r[a] < r[b] || r[a] == r[b] && c12(1, r, a + 1, b + 1);
+	else return r[a] < r[b] || r[a] == r[b] && wv[a + 1] < wv[b + 1];
+}
+void sort(int *r, int *a, int *b, int n, int m)
+{
+	int i;
+	for (i = 0; i < n; i++) wv[i] = r[a[i]];
+	for (i = 0; i < m; i++) ws[i] = 0;
+	for (i = 0; i < n; i++) ws[wv[i]]++;
+	for (i = 1; i < m; i++) ws[i] += ws[i - 1];
+	for (i = n - 1; i >= 0; i--) b[--ws[wv[i]]] = a[i];
+	return;
+}
+void dc3(int *r, int *sa, int n, int m)
+{
+	int i, j, *rn = r + n;
+	int *san = sa + n, ta = 0, tb = (n + 1) / 3, tbc = 0, p;
+	r[n] = r[n + 1] = 0;
+	for (i = 0; i < n; i++) if (i % 3 != 0) wa[tbc++] = i;
+	sort(r + 2, wa, wb, tbc, m);
+	sort(r + 1, wb, wa, tbc, m);
+	sort(r, wa, wb, tbc, m);
+	for (p = 1, rn[F(wb[0])] = 0, i = 1; i < tbc; i++)
+		rn[F(wb[i])] = c0(r, wb[i - 1], wb[i]) ? p - 1 : p++;
+	if (p < tbc) dc3(rn, san, tbc, p);
+	else for (i = 0; i < tbc; i++) san[rn[i]] = i;
+	for (i = 0; i < tbc; i++) if (san[i] < tb) wb[ta++] = san[i] * 3;
+	if (n % 3 == 1) wb[ta++] = n - 1;
+	sort(r, wb, wa, ta, m);
+	for (i = 0; i < tbc; i++) wv[wb[i] = G(san[i])] = i;
+	for (i = 0, j = 0, p = 0; i < ta && j < tbc; p++)
+		sa[p] = c12(wb[j] % 3, r, wa[i], wb[j]) ? wa[i++] : wb[j++];
+	for (; i < ta; p++) sa[p] = wa[i++];
+	for (; j < tbc; p++) sa[p] = wb[j++];
+}
+//`str和sa也要三倍`
+void da(int str[],int sa[],int rank[],int height[],int n,int m)
+{
+	for (int i = n; i < n * 3; i++)
+		str[i] = 0;
+	dc3 (str , sa , n + 1 , m);
+	int i, j, k;
+	for (i = 0; i < n; i++)
+	{
+		sa[i] = sa[i + 1];
+		rank[sa[i]] = i;
+	}
+	for (i = 0, j = 0, k = 0; i < n; height[rank[i ++]] = k)
+		if (rank[i] > 0)
+			for (k ? k-- : 0 , j = sa[rank[i] - 1]; 
+				i + k < n && j + k < n && str[i + k] == str[j + k];
+				k++);
+}
+		\end{lstlisting}
+		
+	\subsubsection{DA}
+		这份似乎就没啥要注意的了。
+		\begin{lstlisting}[language=c++]
+const int maxn = 200010;
+int wx[maxn],wy[maxn],*x,*y,wss[maxn],wv[maxn];
+
+bool cmp(int *r,int n,int a,int b,int l)
+{
+	return a+l<n && b+l<n && r[a]==r[b]&&r[a+l]==r[b+l];
+}
+void da(int str[],int sa[],int rank[],int height[],int n,int m)
+{
+	int *s = str;
+	int *x=wx,*y=wy,*t,p;
+	int i,j;
+	for(i=0; i<m; i++)wss[i]=0;
+	for(i=0; i<n; i++)wss[x[i]=s[i]]++;
+	for(i=1; i<m; i++)wss[i]+=wss[i-1];
+	for(i=n-1; i>=0; i--)sa[--wss[x[i]]]=i;
+	for(j=1,p=1; p<n && j<n; j*=2,m=p)
+	{
+		for(i=n-j,p=0; i<n; i++)y[p++]=i;
+		for(i=0; i<n; i++)if(sa[i]-j>=0)y[p++]=sa[i]-j;
+		for(i=0; i<n; i++)wv[i]=x[y[i]];
+		for(i=0; i<m; i++)wss[i]=0;
+		for(i=0; i<n; i++)wss[wv[i]]++;
+		for(i=1; i<m; i++)wss[i]+=wss[i-1];
+		for(i=n-1; i>=0; i--)sa[--wss[wv[i]]]=y[i];
+		for(t=x,x=y,y=t,p=1,i=1,x[sa[0]]=0; i<n; i++)
+			x[sa[i]]=cmp(y,n,sa[i-1],sa[i],j)?p-1:p++;
+	}
+	for(int i=0; i<n; i++) rank[sa[i]]=i;
+	for(int i=0,j=0,k=0; i<n; height[rank[i++]]=k)
+		if(rank[i]>0)
+			for(k?k--:0,j=sa[rank[i]-1];
+				i+k < n && j+k < n && str[i+k]==str[j+k];
+				k++);
+}
+		\end{lstlisting}
+		
+	\subsubsection{调用}
+		注意几个数组的下标是不同的
+		\begin{lstlisting}[language=c++]
+char s[maxn];
+int str[maxn],sa[maxn],rank[maxn],height[maxn];
+
+int main()
+{
+	scanf("%s",s);
+	int len = strlen(s);
+	for (int i = 0;i <= len;i++)
+		str[i] = s[i];
+	da(str,sa,rank,height,len,128);
+	
+	for (int i = 0;i < len;i++)
+	{
+		printf("sa= %d,height= %d,s= %s\n",sa[i],height[i],s+sa[i]);
+	}
+	return 0;
+}
+		\end{lstlisting}
+		
+	\subsubsection{最长公共前缀}
+		记得不要忘记调用lcpinit！
+		\begin{lstlisting}[language=c++]
+int f[maxn][20];
+int lent[maxn];
+void lcpinit()
+{
+	int i,j;
+	int n = len,k = 1,l = 0;
+	for (i = 0; i < n; i++)
+	{
+		f[i][0] = height[i];
+		if (i+1 > k*2)
+		{
+			k *= 2;
+			l++;
+		}
+		lent[i+1] = l;
+	}
+	for (j = 1; (1<<j)-1<n; j++)
+		for (i = 0; i+(1<<j)-1<n; i++)
+			f[i][j] = min(f[i][j-1],f[i+(1<<(j-1))][j-1]);
+}
+int lcp(int x,int y)
+{
+	if (x > y)	swap(x,y);
+	if (x == y)
+		return x-sa[x];//自己和自己lcp当然是自己的长度啦
+	x++;
+	int k = lent[y-x+1];
+	return min(f[x][k],f[y-(1<<k)+1][k]);
+}
+		\end{lstlisting}
+		
+	\subsubsection{最长公共前缀大于等于某个值的区间}
+		\begin{lstlisting}[language=c++]
+void getinterv(int pos,int comlen,int& pl,int& pr)
+{
+	int l,r,mid,cp;
+	l = 0;
+	r = pos;
+	while (l < r)
+	{
+		mid = l+r>>1;
+		cp = lcp(mid,pos);
+		if (cp < comlen)
+			l = mid+1;
+		else
+			r = mid;
+	}
+	pl = l;
+
+	l = pos;
+	r = len-1;
+	while (l < r)
+	{
+		mid = l+r+1>>1;
+		cp = lcp(pos,mid);
+		if (cp < comlen)
+			r = mid-1;
+		else
+			l = mid;
+	}
+	pr = l;
+}
+		\end{lstlisting}

@@ -1,0 +1,48 @@
+\subsection{高斯消元}
+	\begin{lstlisting}[language=c++]
+const double eps = 1e-8;
+
+void Guess(int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = i; j < n; j++)
+			if (fabs(a[j][i]) > eps)
+			{
+				for (int k = i; k <= n; k++)
+					swap(a[i][k],a[j][k]);
+				break;
+			}
+
+		if (fabs(a[i][i]) < eps)	continue;
+
+		for (int j = 0; j < n; j++)
+			if (i != j && fabs(a[j][i]) > eps)
+			{
+				double det = a[j][i]/a[i][i];
+				for (int k = i; k <= n; k++)
+					a[j][k] -= a[i][k]*det;
+			}
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		if (fabs(a[i][i]) < eps)
+		{
+			if (fabs(a[i][n]) > eps)
+			{
+				//无解
+				puts("Fuck");
+			}
+			//`否则$x_i$可以是任意解`
+		}
+		else
+		{
+			a[i][n] /= a[i][i];
+			if (fabs(a[i][n]) < eps)
+				a[i][n] = 0;
+		}
+	}
+
+}
+	\end{lstlisting}

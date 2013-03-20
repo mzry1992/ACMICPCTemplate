@@ -1,0 +1,27 @@
+\subsection{树状数组}
+	\begin{lstlisting}[language=c++]
+int read(int k)
+{
+	int sum = 0;
+	for (; k; k^=k&-k)
+		sum+=tree[k];
+	return sum;
+}
+void update(int k, int v)
+{
+	for (; k<=MaxN; k+=k&-k)
+		tree[k]+=v;
+}
+int find_Kth(int k)
+{
+	int idx = 0;
+	for(int i=20; i>=0; i--)
+	{
+		idx |= 1 << i;
+		if(idx <= MaxN && tree[idx] < k)
+			k -= tree[idx];
+		else	idx ^= 1 << i;
+	}
+	return idx + 1;
+}
+	\end{lstlisting}

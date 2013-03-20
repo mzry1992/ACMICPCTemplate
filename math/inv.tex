@@ -1,0 +1,13 @@
+\subsection{逆元}
+	\begin{lstlisting}[language=c++]
+void getInv2(int x)
+{
+	inv[1]=1;
+	for (int i=2; i<=x; i++)
+		inv[i]=(mod-(mod/i)*inv[mod%i]%mod)%mod;
+}
+int getInv(int x)//mod为素数
+{
+	return power(x,mod-2);
+}
+	\end{lstlisting}

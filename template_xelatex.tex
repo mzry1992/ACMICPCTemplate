@@ -1,0 +1,119 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{mathpazo}
+\usepackage{xeCJK}
+\usepackage{pstricks,pst-node,pst-tree}
+
+%\setsansfont{Inconsolata}
+%\setsansfont{DejaVu Sans Mono}
+%\setsansfont{Source Code Pro}
+\setsansfont{Monaco}
+
+\setCJKmainfont{SimHei}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{SimHei}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{type1cm}
+\usepackage{booktabs}
+\usepackage{geometry}
+%\usepackage[landscape]{geometry}
+\geometry{left=3cm,right=1cm,top=1.5cm,bottom=2cm,headsep=0.2cm}
+
+\usepackage{courier}
+%\usepackage{time}
+%\usepackage{charter}
+
+\usepackage{fancyhdr}
+
+\usepackage{listings}
+
+\lstset{
+    breaklines=true,
+    tabsize=2,
+    basicstyle=\sf\normalsize,
+    numberstyle=\sf\normalsize,
+    commentstyle=\sf\normalsize,
+    numbers=left,
+    %keywordstyle=\color{blue!70}, 
+    frame=leftline,
+    %rulesepcolor=\color{red!20!green!20!blue!20},
+    escapeinside=``,
+    extendedchars=false
+}
+\usepackage[CJKbookmarks=true,
+	    colorlinks,
+            linkcolor=black,
+            anchorcolor=black,
+            citecolor=black]{hyperref}
+\AtBeginDvi{\special{pdf:tounicode UTF8-UCS2}}
+
+\usepackage{indentfirst}
+\setlength{\parindent}{0em}
+
+\begin{document}
+    \pagestyle{fancy}
+    \lhead{} 
+    \chead{} 
+    \rhead{\bfseries ACM Template} 
+    \lfoot{\bfseries UESTC\_Lasagne} 
+    \cfoot{}
+    \rfoot{\bfseries\thepage} 
+    \renewcommand{\headrulewidth}{0.4pt} 
+    \renewcommand{\footrulewidth}{0.4pt}
+
+    \newgeometry{left=1cm,right=1cm,top=1.5cm,bottom=1.5cm}
+    \begin{titlepage}
+	~
+	\clearpage
+	\pagestyle{empty}
+	
+        \begin{center}
+        ~\\[160pt]
+        
+        \hrule\ \\[8pt]
+        \fontsize{48pt}{\baselineskip}\selectfont  \textsc{ACM Template}\\[8pt]
+        \hrule\ \\[340pt]
+
+        \huge UESTC\_Lasagne\\[8pt]
+        \Large Last build at \today
+        \end{center}
+    \end{titlepage}
+
+    \restoregeometry
+    
+    \tableofcontents
+    \clearpage
+
+    %\input todolist.tex
+    %\clearpage
+
+    \input notice.tex
+    \clearpage
+
+    \input string.tex
+    \clearpage
+
+    \input math.tex
+    \clearpage
+
+    \input datastructure.tex
+    \clearpage
+
+    \input graph.tex
+    \clearpage
+
+    \input geometric.tex
+    \clearpage
+
+    \input search.tex
+    \clearpage
+    
+    \input dp.tex
+    \clearpage
+    
+    \input others.tex
+    \clearpage
+
+\end{document}

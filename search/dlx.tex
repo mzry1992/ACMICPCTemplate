@@ -1,0 +1,165 @@
+\subsection{Dancing Links}
+	\subsubsection{估价函数}
+	\begin{lstlisting}[language=c++]
+int h()
+{
+	bool vis[100];
+	memset(vis,false,sizeof(vis));
+	int i,j,k,res=0,mi,col;
+	while(1)
+	{
+		mi=inf;
+		for(i=R[head]; i!=head&&i<=2*n; i=R[i])
+			if(mi>nk[i]&&!vis[i])
+			{
+				mi=nk[i];
+				col=i;
+			}
+		if(mi==inf)
+			break;
+		res++;
+		vis[col]=true;
+		for(j=D[col]; j!=col; j=D[j])
+			for(k=R[j]; k!=j; k=R[k])
+			{
+				if(C[k]>2*n)
+					continue;
+				vis[C[k]]=true;
+			}
+	}
+	return res;
+}
+	\end{lstlisting}
+	
+	\subsubsection{DLX}
+	\begin{lstlisting}[language=c++]
+void remove1(int col)
+{
+	int i,j;
+	L[R[col]]=L[col];
+	R[L[col]]=R[col];
+	for(i=D[col];i!=col;i=D[i])
+	{
+		L[R[i]]=L[i];
+		R[L[i]]=R[i];
+	}
+}
+void remove2(int col)
+{
+	int i,j;
+	L[R[col]]=L[col];
+	R[L[col]]=R[col];
+	for(i=D[col];i!=col;i=D[i])
+	{
+		for(j=R[i];j!=i;j=R[j])
+		{
+			U[D[j]]=U[j];
+			D[U[j]]=D[j];
+			--nk[C[j]];
+		}
+	}
+}
+void resume1(int col)
+{
+	int i,j;
+	for(i=U[col];i!=col;i=U[i])
+	{
+		L[R[i]]=i;
+		R[L[i]]=i;
+	}
+	L[R[col]]=col;
+	R[L[col]]=col;
+}
+void resume2(int col)
+{
+	int i,j;
+	for(i=U[col];i!=col;i=U[i])
+	{
+		for(j=L[i];j!=i;j=L[j])
+		{
+			++nk[C[j]];
+			U[D[j]]=j;
+			D[U[j]]=j;
+		}
+	}
+	L[R[col]]=col;
+	R[L[col]]=col;
+}
+int h()
+{
+	bool vis[100];
+	memset(vis,false,sizeof(vis));
+	int i,j,k,res=0,mi,col;
+	while(1)
+	{
+		mi=inf;
+		for(i=R[head];i!=head&&i<=2*n;i=R[i])
+			if(mi>nk[i]&&!vis[i])
+			{
+				mi=nk[i];
+				col=i;
+			}
+		if(mi==inf)
+			break;
+		res++;vis[col]=true;
+		for(j=D[col];j!=col;j=D[j])
+			for(k=R[j];k!=j;k=R[k])
+			{
+				if(C[k]>2*n)
+					continue;
+				vis[C[k]]=true;
+			}
+	}
+	return res;
+}
+bool DLX(int d,int deep)
+{
+	if(d+h()>deep) return false;
+	if(R[head]==head||R[head]>2*n)
+		return true;
+	if(d>=deep)
+		return false;
+	int col,ma=inf;
+	int i,j;
+	for(i=R[head];i!=head&&i<=2*n;i=R[i])
+		if(nk[i]<ma)
+		{
+			col=i;
+			ma=nk[i];
+		}
+	remove1(col);
+	for(i=D[col];i!=col;i=D[i])
+	{
+		int flag=1;
+		for(j=R[i];;j=R[j])
+		{
+			if(j==R[i]&&!flag)
+				break;
+			U[D[j]]=U[j];
+			D[U[j]]=D[j];
+			if(C[j]>2*n)
+				remove2(C[j]);
+			else
+				remove1(C[j]);
+			flag=0;
+		}
+		if(DLX(d+1,deep))
+			return true;
+		flag=1;
+		for(j=L[i];;j=L[j])
+		{
+			if(j==L[i]&&!flag)
+				break;
+			if(C[j]>2*n)
+				resume2(C[j]);
+			else
+				resume1(C[j]);
+			U[D[j]]=j;
+			D[U[j]]=j;
+			flag=0;
+		}
+	}
+	resume1(col);
+	return false;
+}
+	\end{lstlisting}

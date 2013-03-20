@@ -1,0 +1,28 @@
+\subsection{整数外挂}
+	\begin{lstlisting}[language=c++]
+int wg;
+char ch;
+bool ng;
+
+inline int readint()
+{
+	ch = getchar();
+	while (ch != '-' && (ch < '0' || ch > '9')) ch = getchar();
+	if (ch == '-')
+	{
+		ng = true;
+		ch = getchar();
+	}
+	else
+		ng = false;
+	wg = ch-'0';
+	ch = getchar();
+	while (ch >= '0' && ch <= '9')
+	{
+		wg = wg*10+ch-'0';
+		ch = getchar();
+	}
+	if (ng == true) wg = -wg;
+	return wg;
+}
+	\end{lstlisting} 

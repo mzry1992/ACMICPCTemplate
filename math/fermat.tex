@@ -1,0 +1,72 @@
+\subsection{费马降阶法}
+	分解素数$p$为$x^2+y^2$的费马降阶法，失败返回$-1$，主程序调用calcu(p,x,y)
+	\begin{lstlisting}[language=c++]
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+int p,expp,A,B,aa,ans,tt;
+long long M;
+long long exp(int a,int b,long long mod)
+{
+	 long long ans=1,num=a;
+	 while (b!=0)
+	 {
+		   if (b&1)
+		   {
+				   ans=((ans%mod)*(num%mod))%mod;
+		   }
+		   num=((num%mod)*(num%mod))%mod;
+		   b>>=1;
+	 }
+	 return ans;
+}
+int calcu(int p,int &x,int &y)
+{
+		  if (p%4!=1) return -1;
+		  else
+		  {
+			  expp=(p-1)/4;
+			  A,B;
+			  while (1)
+			  {
+				  aa=rand()%p;
+				  if (aa==0) continue;
+				  A=exp(aa,expp,p);
+				  ans=(((long long)A%p)*((long long)A%p))%p;
+				  if (ans==p-1) break;
+			  }
+			  B=1;
+			  M=((long long)A*(long long)A+(long long)B*(long long)B)/p;
+			  if (M!=1) B=p;
+			  while (M!=1)
+			  {
+					if (B>A)
+					{tt=A; A=B; B=tt;}
+					tt=A;
+					A=B;
+					B=tt%B;
+					M=((long long)A*(long long)A
+						+(long long)B*(long long)B)/p;
+			  }
+			  if (B<=A)
+			  {
+					   x=B;
+					   y=A;
+			  }
+			  else
+			  {
+				 x=A;
+				 y=B;
+			  }
+		  }
+}
+int main()
+{
+	while (scanf("%d",&p)!=EOF)
+	{
+		  int x,y;
+		  if (calcu(p,x,y)!=-1)
+	}
+	return 0;
+}
+	\end{lstlisting}

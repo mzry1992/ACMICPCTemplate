@@ -1,0 +1,154 @@
+\subsection{KM}
+	\subsubsection{最大加权匹配}
+	\begin{lstlisting}[language=c++]
+bool visx[N],visy[N];//`x,y中的点是否被访问`
+int lx[N],ly[N];//`x,y中的点的标号`
+int matchy[N];//`y中各点匹配状态`
+int map[N][N];//`二分图描述[x][y]`
+bool find(int x)
+{
+	visx[x]=true;
+	int t;
+	for (int y=0;y<ycnt;y++)
+	{
+		if (!visy[y])
+		{
+			t=lx[x]+ly[y]-map[x][y];
+			if (t==0)
+			{
+				visy[y]=true;
+				if (matchy[y]==-1 || find(matchy[y]))
+				{
+					matchy[y]=x;
+					return true;
+				}
+			}
+			else if (lack>t) lack=t;
+		}
+	}
+	return false;
+}
+void KM()
+{
+	memset(lx,0,sizeof(lx));
+	memset(ly,0,sizeof(ly));
+	memset(matchy,-1,sizeof(matchy));
+	for (int i=0;i<xcnt;i++)
+		for (int j=0;j<ycnt;j++)
+			if (map[i][j]>lx[i])
+				lx[i]=map[i][j];
+	for (int x=0;x<xcnt;x++)
+	{
+		while (true)
+		{
+			memset(visx,false,sizeof(visx));
+			memset(visy,false,sizeof(visy));
+			lack=INFI;
+			if (find(x)) break;
+			for (int i=0;i<xcnt;i++)
+			{
+				if (visx[i]) lx[i]-=lack;
+				if (visy[i]) ly[i]+=lack;
+			}
+		}
+	}
+	int cost=0;
+	for (int i=0;i<ycnt;i++)
+		cost+=map[matchy[i]][i];
+}
+	\end{lstlisting}
+
+	\subsubsection{自认为正确的Kuhn\_Munkras}
+	未验证
+	\begin{lstlisting}[language=c++]
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+const int MAXN=100;
+const int inf=0x3f3f3f3f;
+bool visitx[MAXN],visity[MAXN];
+int labx[MAXN],laby[MAXN],matx[MAXN],maty[MAXN],slack[MAXN];
+int ma[MAXN][MAXN];
+bool check(int x,int n)
+{
+	visitx[x]=1;
+	for (int i=0; i<n; i++)
+		if (!visity[i])
+			if (labx[x]+laby[i]==ma[x][i])
+			{
+				visity[i]=1;
+				if (maty[i]==-1 || check(maty[i],n))
+				{
+					matx[x]=i;
+					maty[i]=x;
+					return 1;
+				}
+			}
+			else
+				slack[i]=min(slack[i],labx[x]+laby[i]-ma[x][i]);
+
+	return 0;
+}
+void maintain(int n)
+{
+	int diff=inf;
+	for (int i=0; i<n; i++)
+		if (!visity[i])
+			diff=min(diff,slack[i]);
+	for (int i=0; i<n; i++)
+	{
+		if (visitx[i])
+			labx[i]-=diff;
+		if (visity[i])
+			laby[i]+=diff;
+		else
+			slack[i]-=diff;
+	}
+}
+int Kuhn_Munkras(int n)
+{
+	for (int i=0; i<n; i++)
+	{
+		labx[i]=-inf;
+		for (int j=0; j<n; j++)
+			labx[i]=max(labx[i],ma[i][j]);
+	}
+	memset(laby,0,4*n);
+	memset(matx,-1,4*n);
+	memset(maty,-1,4*n);
+	for (int i=0; i<n; i++)
+	{
+		memset(visitx,0,n);
+		memset(visity,0,n);
+		memset(slack,63,4*n);
+		while (!check(i,n))
+		{
+			maintain(n);
+			memset(visitx,0,n);
+			memset(visity,0,n);
+		}
+	}
+	int ret=0;
+	for (int i=0;i<n;i++)
+		ret+=labx[i]+laby[i];
+	return ret;
+}
+int main()
+{
+	int n,m;
+	scanf("%d%d",&m,&n);
+	for (int i=m; i<n; i++)
+		for (int j=0; j<n; j++)
+			ma[i][j]=0;
+	for (int i=0; i<m; i++)
+		for (int j=0; j<n; j++)
+			scanf("%d",&ma[i][j]);
+	printf("%d\n",Kuhn_Munkras(n));
+	printf("%d",matx[0]+1);
+	for (int i=1;i<m;i++)
+		printf(" %d",matx[i]+1);
+	puts("");
+	return 0;
+}
+	\end{lstlisting}

@@ -1,0 +1,26 @@
+\subsection{RMQ二版}
+	\begin{lstlisting}[language=c++]
+void init()
+{
+	int i,j;
+	int n=N,k=1,l=0;
+	for (i=0; i<n; i++)
+	{
+		f[i][0]=ele[i].num;
+		if (i+1>k*2)
+		{
+			k*=2;
+			l++;
+		}
+		lent[i+1]=l;
+	}
+	for (j=1; (1<<j)-1<n; j++)
+		for (i=0; i+(1<<j)-1<n; i++)
+			f[i][j]=max(f[i][j-1],f[i+(1<<(j-1))][j-1]);
+}
+int fint(int x,int y)
+{
+	int k=lent[y-x+1];
+	return max(f[x][k],f[y-(1<<k)+1][k]);
+}
+	\end{lstlisting}

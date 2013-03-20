@@ -1,0 +1,220 @@
+\subsection{基本函数}
+	\subsubsection{Point定义}
+		\begin{lstlisting}[language=c++]
+struct Point
+{
+	double x, y;
+	Point() {}
+	Point(double _x, double _y)
+	{
+		x = _x, y = _y;
+	}
+	Point operator -(const Point &b)const
+	{
+		return Point(x-b.x, y-b.y);
+	}
+	double operator *(const Point &b)const
+	{
+		return x*b.y-y*b.x;
+	}
+	double operator &(const Point &b)const
+	{
+		return x*b.x+y*b.y;
+	}
+	void transXY(double B)
+	{
+		double tx = x,ty = y;
+		x = tx*cos(B)-ty*sin(B);
+		y = tx*sin(B)+ty*cos(B);
+	}
+};
+		\end{lstlisting}
+		
+	\subsubsection{Line定义}
+		\begin{lstlisting}[language=c++]
+struct Line
+{
+	Point s, e;
+	double k;
+	Line() {}
+	Line(Point _s, Point _e)
+	{
+		s = _s, e = _e;
+		k = atan2(e.y-s.y, e.x-s.x);
+	}
+	Point operator &(const Line &b)const
+	{
+		Point res = s;
+		//注意：有些题目可能会有直线相交或者重合情况
+		//可以把返回值改成`pair<Point,int>`来返回两直线的状态。
+		double t = ((s-b.s)*(b.s-b.e))/((s-e)*(b.s-b.e));
+		res.x += (e.x-s.x)*t;
+		res.y += (e.y-s.y)*t;
+		return res;
+	}
+};
+		\end{lstlisting}
+		
+	\subsubsection{距离：点到直线距离}
+	result:点到直线最近点
+	\begin{lstlisting}[language=c++]
+Point NPT(Point P, Line L)  
+{ 
+	Point result; 
+	double a, b, t; 
+
+	a = L.e.x-L.s.x; 
+	b = L.e.y-L.s.y; 
+	t = ((P.x-L.s.x)*a+(P.y-L.s.y)*b)/(a*a+b*b); 
+
+	result.x = L.s.x+a*t; 
+	result.y = L.s.y+b*t; 
+	return dist(P, result); 
+}
+	\end{lstlisting}
+	
+	\subsubsection{距离：点到线段距离}
+		res：点到线段最近点
+		\begin{lstlisting}[language=c++]
+Point NearestPointToLineSeg(Point P, Line L)
+{
+	Point result;
+	double a, b, t;
+
+	a = L.e.x-L.s.x;
+	b = L.e.y-L.s.y;
+	t = ( (P.x-L.s.x)*a+(P.y-L.s.y)*b )/(a*a+b*b);
+
+	if (t >= 0 && t <= 1)
+	{
+		result.x = L.s.x+a*t;
+		result.y = L.s.y+b*t;
+	}
+	else
+	{
+		if (dist(P,L.s) < dist(P,L.e))
+			result = L.s;
+		else
+			result = L.e;
+	}
+	return result;
+}
+		\end{lstlisting}
+		旧版
+		\begin{lstlisting}[language=c++]
+double CalcDis(Point a,Point s,Point e) //点到线段距离
+{
+	if (sgn((e-s)*(a-s)) < 0 || sgn((s-e)*(a-e)) < 0)
+		return min(dist(a,s),dist(a,e));
+	return abs(((s-a)*(e-a))/dist(s-e));
+}
+		\end{lstlisting}
+		
+	\subsubsection{面积：多边形}
+		点按逆时针排序。
+		\begin{lstlisting}[language=c++]
+double CalcArea(Point p[], int n)
+{
+	double res = 0;
+	for (int i = 0; i < n; i++)
+		res += (p[i]*p[(i+1) % n])/2;
+	return res;
+}
+		\end{lstlisting}
+	
+	\subsubsection{判断：线段相交}
+		\begin{lstlisting}[language=c++]
+bool inter(Line l1,Line l2)
+{
+	return 
+	max(l1.s.x,l1.e.x) >= min(l2.s.x,l2.e.x) &&
+	max(l2.s.x,l2.e.x) >= min(l1.s.x,l1.e.x) &&
+	max(l1.s.y,l1.e.y) >= min(l2.s.y,l2.e.y) &&
+	max(l2.s.y,l2.e.y) >= min(l1.s.y,l1.e.y) &&
+	sgn((l2.s-l1.s)*(l1.e-l1.s))*sgn((l2.e-l1.s)*(l1.e-l1.s)) <= 0 &&
+	sgn((l1.s-l2.s)*(l2.e-l2.s))*sgn((l1.e-l2.s)*(l2.e-l2.s)) <= 0;
+}
+		\end{lstlisting}
+	
+	\subsubsection{判断：点在线段上}
+		\begin{lstlisting}[language=c++]
+bool OnSeg(Line a,Point b)
+{
+	return ((a.s-b)*(a.e-b) == 0 &&
+			(b.x-a.s.x)*(b.x-a.e.x) <= 0 &&
+			(b.y-a.s.y)*(b.y-a.e.y) <= 0);
+}
+		\end{lstlisting}
+		
+	\subsubsection{判断：点在多边形内}
+		凸包且按逆时针排序
+		\begin{lstlisting}[language=c++]
+bool inPoly(Point a,Point p[],int n)
+{
+	for (int i = 0;i < n;i++)
+		if ((p[i]-a)*(p[(i+1)%n]-a) < 0)
+			return false;
+	return true;
+}
+		\end{lstlisting}
+		射线法, 多边形可以是凸的或凹的\\
+		poly的顶点数目要大于等于3\\
+		返回值为：\\
+		0  -- 点在poly内\\
+		1  -- 点在poly边界上\\
+		2  -- 点在poly外
+		\begin{lstlisting}[language=c++]
+int inPoly(Point p,Point poly[], int n)
+{
+	int i, count;
+	Line ray, side;
+
+	count = 0;
+	ray.s	= p;
+	ray.e.y  = p.y;
+	ray.e.x  = -1;//`-INF，注意取值防止越界！`
+
+	for (i = 0; i < n; i++)
+	{
+		side.s = poly[i];
+		side.e = poly[(i+1)%n];
+
+		if(OnSeg(p, side))
+			return 1;
+
+		// 如果side平行x轴则不作考虑
+		if (side.s.y == side.e.y)
+			continue;
+
+		if (OnSeg(side.s, ray))
+		{
+			if (side.s.y > side.e.y) count++;
+		}
+		else if (OnSeg(side.e, ray))
+		{
+			if (side.e.y > side.s.y) count++;
+		}
+		else if (inter(ray, side))
+		{
+			count++;
+		}
+	}
+	return ((count % 2 == 1) ? 0 : 2);
+}
+		\end{lstlisting}
+		
+	\subsubsection{判断：两凸包相交}
+		需要考虑这几个：一个凸包的点在另外一个图包内（包括边界）；一个凸包的某条边与另一个凸包某条边相交；如果凸包可能退化成点线还需要判断点在线段上和点和点重合。
+		
+	\subsubsection{排序：叉积极角排序}
+	\begin{lstlisting}[language=c++]
+bool cmp(const Point& a,const Point& b)
+{
+	if (a.y*b.y <= 0)
+	{
+		if (a.y > 0 || b.y > 0)	return a.y < b.y;
+		if (a.y == 0 && b.y == 0)	return a.x < b.x;
+	}
+	return a*b > 0;
+}
+	\end{lstlisting}

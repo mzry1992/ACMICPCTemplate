@@ -1,0 +1,495 @@
+\subsection{后缀三兄弟}
+	\begin{lstlisting}[language=c++]
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int CHAR = 26;
+const int MAXN = 100000;
+struct SAM_Node
+{
+	SAM_Node *fa,*next[CHAR];
+	int len;
+	int id,pos;
+	SAM_Node() {}
+	SAM_Node(int _len)
+	{
+		fa = 0;
+		len = _len;
+		memset(next,0,sizeof(next));
+	}
+};
+SAM_Node SAM_node[MAXN * 2], *SAM_root, *SAM_last;
+int SAM_size;
+SAM_Node *newSAM_Node(int len)
+{
+	SAM_node[SAM_size] = SAM_Node(len);
+	SAM_node[SAM_size].id=SAM_size;
+	return &SAM_node[SAM_size++];
+}
+SAM_Node *newSAM_Node(SAM_Node *p)
+{
+	SAM_node[SAM_size] = *p;
+	SAM_node[SAM_size].id=SAM_size;
+	return &SAM_node[SAM_size++];
+}
+void SAM_init()
+{
+	SAM_size = 0;
+	SAM_root = SAM_last = newSAM_Node(0);
+	SAM_node[0].pos=0;
+}
+void SAM_add(int x,int len)
+{
+	SAM_Node *p = SAM_last, *np = newSAM_Node(p->len + 1);
+	np->pos=len;
+	SAM_last = np;
+	for (; p && !p->next[x]; p = p->fa)
+		p->next[x] = np;
+	if (!p)
+	{
+		np->fa = SAM_root;
+		return ;
+	}
+	SAM_Node *q = p->next[x];
+	if (q->len == p->len + 1)
+	{
+		np->fa = q;
+		return ;
+	}
+	SAM_Node *nq = newSAM_Node(q);
+	nq->len = p->len + 1;
+	q->fa = nq;
+	np->fa = nq;
+	for (; p && p->next[x] == q; p = p->fa)
+		p->next[x] = nq;
+}
+void SAM_build(char *s)
+{
+	SAM_init();
+	int l = strlen(s);
+	for (int i = 0; i < l; i++)
+		SAM_add(s[i] - 'a',i+1);
+}
+
+SAM_Node * SAM_add(SAM_Node *p, int x, int len)
+{
+	SAM_Node *np = newSAM_Node(p->len + 1);
+	np->pos = len;
+	SAM_last = np;
+	for (; p && !p->next[x]; p = p->fa)
+		p->next[x] = np;
+	if (!p)
+	{
+		np->fa = SAM_root;
+		return np;
+	}
+	SAM_Node *q = p->next[x];
+	if (q->len == p->len + 1)
+	{
+		np->fa = q;
+		return np;
+	}
+	SAM_Node *nq = newSAM_Node(q);
+	nq->len = p->len + 1;
+	q->fa = nq;
+	np->fa = nq;
+	for (; p && p->next[x] == q; p = p->fa)
+		p->next[x] = nq;
+	return np;
+}
+void SAM_build(char *s)//多串建立 注意SAM_init()的调用
+{
+	int l = strlen(s);
+	SAM_Node *p = SAM_root;
+	for (int i = 0; i < l; i++)
+	{
+		if (!p->next[s[i] - 'a'] || !(p->next[s[i] - 'a']->len == i + 1))
+			p=SAM_add(p,s[i] - 'a', i + 1);
+		else
+			p = p->next[s[i] - 'a'];
+	}
+}
+
+struct ST_Node
+{
+	ST_Node *next[CHAR],*fa;
+	int len,pos;
+}ST_node[MAXN*2],*ST_root;
+int Sufpos[MAXN];
+void ST_add(int u,int v,int chr,int len)
+{
+	ST_node[u].next[chr]=&ST_node[v];
+	ST_node[v].len=len;
+}
+void init(int n)
+{
+	for (int i=0;i<n;i++)
+	{
+		ST_node[i].pos=-1;
+		ST_node[i].fa=0;
+		memset(ST_node[i].next,0,sizeof(ST_node[i].next));
+	}
+	ST_node[0].pos=0;
+	ST_root=&ST_node[0];
+}
+void ST_build(char *s)
+{
+	int n=strlen(s);
+	reverse(s,s+n);
+	SAM_build(s);
+	init(SAM_size);
+	for (int i=1;i<SAM_size;i++)
+	{
+		ST_add(SAM_node[i].fa->id,
+			SAM_node[i].id,
+			s[SAM_node[i].pos-SAM_node[i].fa->len-1]-'a',
+			SAM_node[i].len-SAM_node[i].fa->len);
+		if (SAM_node[i].pos==SAM_node[i].len)
+		{
+			Sufpos[n-SAM_node[i].pos+1]=i;
+			ST_node[i].pos=n-SAM_node[i].pos+1;
+		}
+	}
+}
+
+int rank[MAXN],sa[MAXN+1];
+int height[MAXN];
+int L;
+void ST_dfs(ST_Node *p)
+{
+	if (p->pos!=-1)
+		sa[L++]=p->pos;
+	for (int i=0;i<CHAR;i++)
+		if (p->next[i])
+			ST_dfs(p->next[i]);
+}
+char s[MAXN+1];
+int main()
+{
+	gets(s);
+	ST_build(s);
+	L=0;
+	ST_dfs(ST_root);
+	int n=strlen(s);
+	for (int i=0; i<n; i++)
+		sa[i]=sa[i+1]-1;
+	for (int i=0; i<n; i++)
+		rank[sa[i]]=i;
+	reverse(s,s+n);
+	for (int i=0,j=0,k=0; i<n; height[rank[i++]]=k)
+		if (rank[i])
+			for (k?k--:0,j=sa[rank[i]-1]; s[i+k]==s[j+k]; k++);
+}
+	\end{lstlisting} 
+	
+	\subsubsection{例题}
+	\begin{lstlisting}[language=c++]
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int CHAR = 26;
+const int MAXN = 100000;
+
+struct SAM_Node
+{
+	SAM_Node *fa,*next[CHAR];
+	int len;
+	int id;
+	int mat[9];
+	SAM_Node() {}
+	SAM_Node(int _len)
+	{
+		fa = 0;
+		len = _len;
+		memset(mat,0,sizeof(mat));
+		memset(next,0,sizeof(next));
+	}
+};
+SAM_Node SAM_node[MAXN*2],*SAM_root,*SAM_last;
+int SAM_size;
+SAM_Node *newSAM_Node(int len)
+{
+	SAM_node[SAM_size] = SAM_Node(len);
+	SAM_node[SAM_size].id = SAM_size;
+	return &SAM_node[SAM_size++];
+}
+SAM_Node *newSAM_Node(SAM_Node *p)
+{
+	SAM_node[SAM_size] = *p;
+	SAM_node[SAM_size].id = SAM_size;
+	return &SAM_node[SAM_size++];
+}
+void SAM_init()
+{
+	SAM_size = 0;
+	SAM_root = SAM_last = newSAM_Node(0);
+}
+void SAM_add(int x,int len)
+{
+	SAM_Node *p = SAM_last,*np = newSAM_Node(p->len+1);
+	SAM_last = np;
+	for (; p&&!p->next[x]; p=p->fa)
+		p->next[x] = np;
+	if (!p)
+	{
+		np->fa = SAM_root;
+		return;
+	}
+	SAM_Node *q = p->next[x];
+	if (q->len == p->len+1)
+	{
+		np->fa = q;
+		return;
+	}
+	SAM_Node *nq = newSAM_Node(q);
+	nq->len = p->len+1;
+	q->fa = nq;
+	np->fa = nq;
+	for (; p&&p->next[x] == q; p = p->fa)
+		p->next[x] = nq;
+}
+int getid(char ch)
+{
+	return ch-'a';
+}
+void SAM_build(char *s)
+{
+	SAM_init();
+	int l = strlen(s);
+	for (int i = 0; i < l; i++)
+		SAM_add(getid(s[i]),i+1);
+}
+char s[10][MAXN+1];
+int ans;
+int head[MAXN*2];
+struct Edge
+{
+	int to,next;
+} edge[MAXN*2];
+int M;
+int n;
+void add_edge(int u,int v)
+{
+	edge[M].to=v;
+	edge[M].next=head[u];
+	head[u]=M++;
+}
+void dfs(int u)
+{
+	for (int i=head[u]; i!=-1; i=edge[i].next)
+	{
+		int v=edge[i].to;
+		dfs(v);
+		for (int j=0; j<n-1; j++)
+		SAM_node[u].mat[j]=max(SAM_node[v].mat[j],SAM_node[u].mat[j]);
+	}
+	int tmp=SAM_node[u].len;
+	for (int i=0; i<n-1; i++)
+		tmp=min(tmp,SAM_node[u].mat[i]);
+	ans=max(ans,tmp);
+}
+int main()
+{
+
+	while (scanf("%s",s[n])!=EOF)
+		n++;
+	int L=strlen(s[0]);
+	ans=M=0;
+	SAM_build(s[0]);
+	for (int j=1; j<n; j++)
+	{
+		int l=strlen(s[j]),len=0;
+		SAM_Node *p=SAM_root;
+		for (int i=0; i<l; i++)
+		{
+			if (p->next[getid(s[j][i])])
+			{
+				p=p->next[getid(s[j][i])];
+				p->mat[j-1]=max(p->mat[j-1],++len);
+			}
+			else
+			{
+				while (p && !p->next[getid(s[j][i])])
+					p=p->fa;
+				if (!p)
+				{
+					p=SAM_root;
+					len=0;
+				}
+				else
+				{
+					len=p->len+1;
+					p=p->next[getid(s[j][i])];
+				}
+				p->mat[j-1]=max(p->mat[j-1],len);
+			}
+		}
+	}
+	memset(head,-1,4*SAM_size);
+	for (int i=1; i<SAM_size; i++)
+		add_edge(SAM_node[i].fa->id,i);
+	dfs(0);
+	printf("%d\n",ans);
+	return 0;
+}
+	\end{lstlisting}
+	
+	LCS2\\
+	\begin{lstlisting}[language=c++]
+#include <iostream>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int CHAR = 26;
+const int MAXN = 100000;
+
+struct SAM_Node
+{
+	SAM_Node *fa,*next[CHAR];
+	int len;
+	int id;
+	int mat[9];
+	SAM_Node() {}
+	SAM_Node(int _len)
+	{
+		fa = 0;
+		len = _len;
+		memset(mat,0,sizeof(mat));
+		memset(next,0,sizeof(next));
+	}
+};
+SAM_Node SAM_node[MAXN*2],*SAM_root,*SAM_last;
+int SAM_size;
+SAM_Node *newSAM_Node(int len)
+{
+	SAM_node[SAM_size] = SAM_Node(len);
+	SAM_node[SAM_size].id = SAM_size;
+	return &SAM_node[SAM_size++];
+}
+SAM_Node *newSAM_Node(SAM_Node *p)
+{
+	SAM_node[SAM_size] = *p;
+	SAM_node[SAM_size].id = SAM_size;
+	return &SAM_node[SAM_size++];
+}
+void SAM_init()
+{
+	SAM_size = 0;
+	SAM_root = SAM_last = newSAM_Node(0);
+}
+void SAM_add(int x,int len)
+{
+	SAM_Node *p = SAM_last,*np = newSAM_Node(p->len+1);
+	SAM_last = np;
+	for (; p&&!p->next[x]; p=p->fa)
+		p->next[x] = np;
+	if (!p)
+	{
+		np->fa = SAM_root;
+		return;
+	}
+	SAM_Node *q = p->next[x];
+	if (q->len == p->len+1)
+	{
+		np->fa = q;
+		return;
+	}
+	SAM_Node *nq = newSAM_Node(q);
+	nq->len = p->len+1;
+	q->fa = nq;
+	np->fa = nq;
+	for (; p&&p->next[x] == q; p = p->fa)
+		p->next[x] = nq;
+}
+int getid(char ch)
+{
+	return ch-'a';
+}
+void SAM_build(char *s)
+{
+	SAM_init();
+	int l = strlen(s);
+	for (int i = 0; i < l; i++)
+		SAM_add(getid(s[i]),i+1);
+}
+char s[MAXN+1];
+int ans;
+int head[MAXN*2];
+struct Edge
+{
+	int to,next;
+} edge[MAXN*2];
+int M;
+int n;
+void add_edge(int u,int v)
+{
+	edge[M].to=v;
+	edge[M].next=head[u];
+	head[u]=M++;
+}
+void dfs(int u)
+{
+	for (int i=head[u]; i!=-1; i=edge[i].next)
+	{
+		int v=edge[i].to;
+		dfs(v);
+		for (int j=0; j<n; j++)
+		SAM_node[u].mat[j]=max(SAM_node[v].mat[j],SAM_node[u].mat[j]);
+	}
+	int tmp=SAM_node[u].len;
+	for (int i=0; i<n; i++)
+		tmp=min(tmp,SAM_node[u].mat[i]);
+	ans=max(ans,tmp);
+}
+int main()
+{
+	//freopen("in.txt","r",stdin);
+	//freopen("out.txt","w",stdout);
+	n=0;
+	gets(s);
+	SAM_build(s);
+	while (gets(s))
+	{
+		int l=strlen(s),len=0;
+		SAM_Node *p=SAM_root;
+		for (int i=0; i<l; i++)
+		{
+			if (p->next[getid(s[i])])
+			{
+				p=p->next[getid(s[i])];
+				p->mat[n]=max(p->mat[n],++len);
+			}
+			else
+			{
+				while (p && !p->next[getid(s[i])])
+					p=p->fa;
+				if (!p)
+				{
+					p=SAM_root;
+					len=0;
+				}
+				else
+				{
+					len=p->len+1;
+					p=p->next[getid(s[i])];
+				}
+				p->mat[n]=max(p->mat[n],len);
+			}
+			//printf("%d %d %d\n",i,len,p->id);
+		}
+		n++;
+	}
+	memset(head,-1,4*SAM_size);
+	for (int i=1; i<SAM_size; i++)
+		add_edge(SAM_node[i].fa->id,i);
+	dfs(0);
+	printf("%d\n",ans);
+	return 0;
+}
+	\end{lstlisting}

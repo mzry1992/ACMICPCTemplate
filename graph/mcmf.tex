@@ -1,0 +1,314 @@
+\subsection{费用流}
+\subsubsection{三版}
+	T了可以改成栈。\\
+	\begin{lstlisting}[language=c++]
+const int MAXM=60000;
+const int MAXN=400;
+const int inf=0x3fffffff;
+int L,N;
+int K;
+struct edges
+{
+	int to,next,cap,flow,cost;
+} edge[MAXM];
+struct nodes
+{
+	int dis,pre,head;
+	bool visit;
+} node[MAXN];
+void init(int n)
+{
+	N=n;
+	L=0;
+	for (int i=0; i<N; i++)
+		node[i].head=-1;
+}
+void add_edge(int x,int y,int cap,int cost)
+{
+	edge[L].to=y;
+	edge[L].cap=cap;
+	edge[L].cost=cost;
+	edge[L].flow=0;
+	edge[L].next=node[x].head;
+	node[x].head=L++;
+	edge[L].to=x;
+	edge[L].cap=0;
+	edge[L].cost=-cost;
+	edge[L].flow=0;
+	edge[L].next=node[y].head;
+	node[y].head=L++;
+}
+bool spfa(int s,int t)
+{
+	queue <int> q;
+	for (int i=0; i<N; i++)
+	{
+		node[i].dis=0x3fffffff;
+		node[i].pre=-1;
+		node[i].visit=0;
+	}
+	node[s].dis=0;
+	node[s].visit=1;
+	q.push(s);
+	while (!q.empty())
+	{
+		int u=q.front();
+		node[u].visit=0;
+		for (int i=node[u].head; i!=-1; i=edge[i].next)
+		{
+			int v=edge[i].to;
+			if (edge[i].cap>edge[i].flow &&
+					node[v].dis>node[u].dis+edge[i].cost)
+			{
+				node[v].dis=node[u].dis+edge[i].cost;
+				node[v].pre=i;
+				if (!node[v].visit)
+				{
+					node[v].visit=1;
+					q.push(v);
+				}
+			}
+		}
+		q.pop();
+	}
+	if (node[t].pre==-1)
+		return 0;
+	else
+		return 1;
+}
+int mcmf(int s,int t,int &cost)
+{
+	int flow=0;
+	while (spfa(s,t))
+	{
+		int max=inf;
+		for (int i=node[t].pre; i!=-1; i=node[edge[i^1].to].pre)
+		{
+			if (max>edge[i].cap-edge[i].flow)
+				max=edge[i].cap-edge[i].flow;
+		}
+		for (int i=node[t].pre; i!=-1; i=node[edge[i^1].to].pre)
+		{
+			edge[i].flow+=max;
+			edge[i^1].flow-=max;
+			cost+=edge[i].cost*max;
+		}
+		flow+=max;
+	}
+	return flow;
+}
+	\end{lstlisting}
+
+\subsubsection{dijkstra加改点堆}
+\begin{lstlisting}[language=c++]
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <queue>
+#include <stack>
+using namespace std;
+int N, L;
+int head[2003];
+struct Edge
+{
+    int to, next, flow, cost;
+} edge[2000 * 1999 / 2 + 2000 * 3 << 1];
+int h[2003], dis[2003], pre[2003];
+struct Heap
+{
+    int value[2004], id[2004];
+    int pos[2003];
+    int size;
+    void init()
+    {
+        size = 1;
+    }
+    void swap2(int p, int q)
+    {
+        swap(value[p], value[q]);
+        swap(id[p], id[q]);
+        pos[id[p]] = p;
+        pos[id[q]] = q;
+    }
+    void push_up(int p)
+    {
+        while (p > 1 && value[p / 2] > value[p])
+        {
+            swap2(p, p / 2);
+            p /= 2;
+        }
+    }
+    void push_down(int p)
+    {
+        while (p * 2 < size)
+        {
+            int best = p;
+            if (p * 2 < size && value[p] > value[p * 2])
+                best = p * 2;
+            if (p * 2 + 1 < size && value[best] > value[p * 2 + 1])
+                best = p * 2 + 1;
+            if (p == best)
+                break;
+            swap2(p, best);
+            p = best;
+        }
+    }
+    void push(int _value, int _id)
+    {
+        value[size] = _value;
+        id[size] = _id;
+        pos[_id] = size;
+        push_up(size++);
+    }
+    int top()
+    {
+        return id[1];
+    }
+    void pop()
+    {
+        value[1] = value[size - 1];
+        id[1] = id[--size];
+        pos[id[1]] = 1;
+        push_down(1);
+    }
+    void update(int _value, int _id)
+    {
+        int p = pos[_id];
+        value[p] = _value;
+        push_up(p);
+    }
+} heap;
+bool inque[2003];
+void init(int n)
+{
+    N = n;
+    L = 0;
+    memset(head, -1, 4 * n);
+}
+void add_edge(int u, int v, int flow, int cost)
+{
+    edge[L].to = v;
+    edge[L].flow = flow;
+    edge[L].cost = cost;
+    edge[L].next = head[u];
+    head[u] = L++;
+    edge[L].to = u;
+    edge[L].flow = 0;
+    edge[L].cost = -cost;
+    edge[L].next = head[v];
+    head[v] = L++;
+}
+void spfa(int s)
+{
+    memset(dis, 63, 4 * N);
+    memset(inque, 0, N);
+    memset(pre, -1, 4 * N);
+    dis[s] = 0;
+    stack <int> que;
+    que.push(s);
+    while (!que.empty())
+    {
+        int u = que.top();
+        inque[u] = 0;
+        que.pop();
+        for (int i = head[u]; i != -1; i = edge[i].next)
+            if (edge[i].flow)
+            {
+                int v = edge[i].to;
+                if (dis[v] > dis[u] + edge[i].cost)
+                {
+                    dis[v] = dis[u] + edge[i].cost;
+                    pre[v] = i;
+                    if (!inque[v])
+                    {
+                        inque[v] = 1;
+                        que.push(v);
+                    }
+                }
+            }
+    }
+}
+void dijkstra(int s)
+{
+    for (int i = 0; i < N; ++i)
+        h[i] += dis[i];
+    memset(dis, 63, 4 * N);
+    memset(pre, -1, 4 * N);
+    memset(inque, 0, N);
+    dis[s] = 0;
+    inque[s] = 1;
+    heap.init();
+    heap.push(0, s);
+    while (heap.size > 1)
+    {
+        int u = heap.top();
+        heap.pop();
+        for (int i = head[u]; i != -1; i = edge[i].next)
+            if (edge[i].flow)
+            {
+                int v = edge[i].to;
+                if (dis[v] > dis[u] + edge[i].cost + h[u] - h[v])
+                {
+                    dis[v] = dis[u] + edge[i].cost + h[u] - h[v];
+                    pre[v] = i;
+                    if (!inque[v])
+                    {
+                        heap.push(dis[v], v);
+                        inque[v] = 1;
+                    }
+                    else
+                        heap.update(dis[v], v);
+                }
+            }
+    }
+}
+int mcmf(int s, int t, int &cost)
+{
+    int flow = 0;
+    memset(h, 0, 4 * N);
+    for (spfa(s); pre[t] != -1; dijkstra(s))
+	{
+		int maxs = edge[pre[t]].flow;
+		for (int i = pre[t]; i != -1; i = pre[edge[i ^ 1].to])
+			maxs = min(maxs, edge[i].flow);	
+        for (int i = pre[t]; i != -1; i = pre[edge[i ^ 1].to])
+        {
+            edge[i].flow -= maxs;
+            edge[i ^ 1].flow += maxs;
+            cost += edge[i].cost * maxs;
+        }
+		flow += maxs;
+	}
+    return flow;
+}
+int a[1000];
+int main()
+{
+    int t;
+    scanf("%d", &t);
+    for (int cas = 1; cas <= t; ++cas)
+    {
+        int n;
+        scanf("%d", &n);
+        init(n * 2 + 3);
+        for (int i = 0; i < n; ++i)
+        {
+            int x;
+            scanf("%d", &x);
+            a[i] = x;
+            add_edge(i * 2, i * 2 + 1, 1, -1);
+            add_edge(i * 2 + 1, n * 2 + 1, 1, 0);
+            add_edge(n * 2 + 2, i * 2, 1, 0);
+        }
+        for (int i = 0; i < n; ++i)
+            for (int j = i + 1; j < n; ++j)
+                if (a[i] < a[j])
+                    add_edge(i * 2 + 1, j * 2, 1, 0);
+        add_edge(n * 2, n * 2 + 2, 2, 0);
+        int ans = 0;
+        mcmf(n * 2, n * 2 + 1, ans);
+        printf("Case #%d: %d\n", cas, -ans);
+    }
+    return 0;
+}
+\end{lstlisting}

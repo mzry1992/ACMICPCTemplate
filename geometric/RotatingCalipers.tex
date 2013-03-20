@@ -1,0 +1,94 @@
+\subsection{旋转卡壳}
+	“对踵”\\
+	\subsubsection{单个凸包}
+	\begin{lstlisting}[language=c++]
+void solve(Point p[],int n)
+{
+	Point v;
+	int cur = 1;
+	for (int i = 0;i < n;i++)
+	{
+		v = p[i]-p[(i+1)%n];
+		while (v*(p[(cur+1)%n]-p[cur]) < 0)
+			cur = (cur+1)%n;
+		//p[cur] -> p[i]
+		//p[cur] -> p[i+1]
+		//p[cur] -> (p[i],p[i+1])
+	}
+}
+	\end{lstlisting}
+	\subsubsection{两个凸包}
+	注意初始点的选取，代码只是个示例。\\
+	有时候答案需要取solve(p0,n,p1,m)和solve(p1,m,p0,n)的最优值。\\
+	何老鱼说我的是错的。。\\
+	\begin{lstlisting}[language=c++]
+void solve(Point p0[],int n,Point p1[],int m)
+{
+	Point v;
+	int cur = 0;
+	for (int i = 0;i < n;i++)
+	{
+		v = p0[i]-p0[(i+1)%n];
+		while (v*(p1[(cur+1)%m]-p1[cur]) < 0)
+			cur = (cur+1)%m;
+		//p1[cur] -> p0[i]
+		//p1[cur] -> p0[i+1]
+		//p1[cur] -> (p0[i],p0[i+1])
+	}
+}
+	\end{lstlisting}
+	\subsubsection{外接矩形}
+	\begin{lstlisting}[language=c++]
+void solve()
+{
+	resa = resb = 1e100;
+	double dis1,dis2;
+	Point xp[4];
+	Line l[4];
+	int a,b,c,d;
+	int sa,sb,sc,sd;
+	a = b = c = d = 0;
+	sa = sb = sc = sd = 0;
+	Point va,vb,vc,vd;
+	for (a = 0; a < n; a++)
+	{
+		va = Point(p[a],p[(a+1)%n]);
+		vc = Point(-va.x,-va.y);
+		vb = Point(-va.y,va.x);
+		vd = Point(-vb.x,-vb.y);
+		if (sb < sa)
+		{
+			b = a;
+			sb = sa;
+		}
+		while (xmult(vb,Point(p[b],p[(b+1)%n])) < 0)
+		{
+			b = (b+1)%n;
+			sb++;
+		}
+		if (sc < sb)
+		{
+			c = b;
+			sc = sb;
+		}
+		while (xmult(vc,Point(p[c],p[(c+1)%n])) < 0)
+		{
+			c = (c+1)%n;
+			sc++;
+		}
+		if (sd < sc)
+		{
+			d = c;
+			sd = sc;
+		}
+		while (xmult(vd,Point(p[d],p[(d+1)%n])) < 0)
+		{
+			d = (d+1)%n;
+			sd++;
+		}
+
+		//`卡在p[a],p[b],p[c],p[d]上`
+		sa++;
+	}
+}
+	\end{lstlisting}

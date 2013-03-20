@@ -1,0 +1,500 @@
+\subsection{树链剖分}
+	\subsubsection{点权}
+	\begin{lstlisting}[language=c++]
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <algorithm>
+using namespace std;
+const int MAX = 12000;
+const int LOG = 15;
+const int oo = 0x3f3f3f3f;
+struct Edge
+{
+		int to, w, id;
+		Edge* next;
+} memo[MAX<<1],*cur,*g[MAX],*pree[MAX],*solid[MAX],*valid[MAX];
+int dp[MAX][LOG], pos[MAX], lst[MAX], dep[MAX], cnt[MAX], h[MAX], K, n;
+void init()
+{
+	for (int i = 1; i <= n; i++)
+	{
+		g[i] = NULL;
+		valid[i] = NULL;
+		solid[i] = NULL;
+		pree[i] = NULL;
+	}
+	for (int i = 0; i < LOG; i++)
+	{
+		dp[1][i] = 1;
+	}
+	cur = memo;
+	K = 0;
+}
+void add(int u, int v, int w, int id)
+{
+	cur->to = v;
+	cur->w = w;
+	cur->id = id;
+	cur->next = g[u];
+	g[u] = cur++;
+}
+void dfsLCA(int d, int u, int f)
+{
+	dep[u] = d;
+	dp[u][0] = f;
+	cnt[u] = 1;
+	for (int i = 1; i < LOG; i++)
+	{
+		dp[u][i] = dp[dp[u][i - 1]][i - 1];
+	}
+	for (Edge* it = g[u]; it; it = it->next)
+	{
+		int v = it->to;
+		if (v != f)
+		{
+			pree[v] = it;
+			valid[it->id] = it;
+			dfsLCA(d + 1, v, u); //RE
+			cnt[u] += cnt[v];
+			if (solid[u] == NULL || cnt[solid[u]->to] < cnt[v])
+			{
+				solid[u] = it;
+			}
+		}
+	}
+}
+void dfsChain(int u, int head)
+{
+	h[u] = head;
+	if (solid[u])
+	{
+		lst[pos[u] = K++] = u;
+		dfsChain(solid[u]->to, head);
+	}
+	else
+	for (Edge* it = g[u]; it; it = it->next)
+	{
+		int v = it->to;
+		if (it != solid[u] && v != dp[u][0])
+		{
+			dfsChain(v, v);
+		}
+	}
+}
+int getLCA(int u, int v)
+{
+	if (dep[u] < dep[v])
+		swap(u, v);
+	for (int st = 1 << (LOG - 1), i = LOG - 1; i >= 0; i--, st >>= 1)
+	{
+		if (st <= dep[u] - dep[v])
+		{
+			u = dp[u][i];
+		}
+	}
+	if (u == v)
+		return u;
+	for (int i = LOG - 1; i >= 0; i--)
+	{
+		if (dp[u][i] != dp[v][i])
+		{
+			u = dp[u][i];
+			v = dp[v][i];
+		}
+	}
+	return dp[u][0];
+}
+struct Node
+{
+		int l, r, ma, mi;
+		bool rev;
+} seg[MAX << 2];
+void reverse(int k)
+{
+	seg[k].mi *= -1;
+	seg[k].ma *= -1;
+	seg[k].rev ^= 1;
+	swap(seg[k].mi, seg[k].ma);
+}
+void pushdown(int k)
+{
+	if (seg[k].rev)
+	{
+		reverse(k << 1);
+		reverse(k << 1 | 1);
+		seg[k].rev = false;
+	}
+}
+void update(int k)
+{
+	seg[k].mi = min(seg[k << 1].mi, seg[k << 1 | 1].mi);
+	seg[k].ma = max(seg[k << 1].ma, seg[k << 1 | 1].ma);
+}
+void init(int k, int l, int r)
+{
+	seg[k].l = l;
+	seg[k].r = r;
+	seg[k].rev = false;
+	if (l == r)
+	{
+		seg[k].mi = seg[k].ma = solid[lst[l]]->w; //solid WA
+		return;
+	}
+	int mid = l + r >> 1;
+	init(k << 1, l, mid);
+	init(k << 1 | 1, mid + 1, r);
+	update(k);
+}
+void update(int k, int id, int v)
+{
+	if (seg[k].l == seg[k].r)
+	{
+		seg[k].mi = seg[k].ma = solid[lst[id]]->w = v;
+		return;
+	}
+	pushdown(k);
+	int mid = seg[k].l + seg[k].r >> 1;
+	if (id <= mid)
+		update(k << 1, id, v);
+	else
+		update(k << 1 | 1, id, v);
+	update(k);
+}
+void reverse(int k, int l, int r)
+{
+	if (seg[k].l > r || seg[k].r < l)
+		return;
+	if (seg[k].l >= l && seg[k].r <= r)
+	{
+		reverse(k);
+		return;
+	}
+	pushdown(k);
+	reverse(k << 1, l, r);
+	reverse(k << 1 | 1, l, r);
+	update(k);
+}
+int read(int k, int l, int r)
+{
+	if (seg[k].l > r || seg[k].r < l)
+		return -oo;
+	if (seg[k].l >= l && seg[k].r <= r)
+		return seg[k].ma;
+	pushdown(k);
+	return max(read(k << 1, l, r), read(k << 1 | 1, l, r));
+}
+void setEdge(int id, int v)
+{
+	Edge* it = valid[id];
+	if (h[it->to] != it->to)
+	{
+		update(1, pos[dp[it->to][0]], v);
+	}
+	else
+	{
+		it->w = v;
+	}
+}
+void negateLCA(int t, int u)
+{
+	while (t != u)
+	{
+		int tmp = h[u];
+		if (dep[tmp] < dep[t])
+			tmp = t;
+		if (h[u] == u)
+		{
+			pree[u]->w *= -1;
+			u = dp[u][0];
+		}
+		else
+		{
+			reverse(1, pos[tmp], pos[dp[u][0]]);
+			u = tmp;
+		}
+	}
+}
+void negate(int u, int v)
+{
+	int t = getLCA(u, v);
+	negateLCA(t, u);
+	negateLCA(t, v);
+}
+int maxLCA(int t, int u)
+{
+	int ret = -oo;
+	while (t != u)
+	{
+		int tmp = h[u];
+		if (dep[tmp] < dep[t])
+			tmp = t;
+		if (h[u] == u)
+		{
+			ret = max(ret, pree[u]->w);
+			u = dp[u][0];
+		}
+		else
+		{
+			ret = max(ret, read(1, pos[tmp], pos[dp[u][0]]));
+			u = tmp;
+		}
+	}
+	return ret;
+}
+int query(int u, int v)
+{
+	int t = getLCA(u, v);
+	return max(maxLCA(t, u), maxLCA(t, v));
+}
+int main()
+{
+	int T;
+	int u, v, w;
+	char op[15];
+	scanf("%d", &T);
+	while (T--)
+	{
+		scanf("%d", &n);
+		init();
+		for (int i = 1; i < n; i++)
+		{
+			scanf("%d%d%d", &u, &v, &w);
+			add(u, v, w, i);
+			add(v, u, w, i);
+		}
+		dfsLCA(0, 1, 1);
+		dfsChain(1, 1);
+		init(1, 0, K - 1);
+		while (scanf("%s", op), op[0] != 'D')
+		{
+			scanf("%d%d", &u, &v);
+			if (op[0] == 'C')
+			{
+				setEdge(u, v);
+			}
+			else if (op[0] == 'N')
+			{
+				negate(u, v);
+			}
+			else
+			{
+				printf("%d\n", query(u, v));
+			}
+		}
+	}
+	return 0;
+}
+	\end{lstlisting}
+	\subsubsection{边权}
+	\begin{lstlisting}[language=c++]
+#include <cstdio>
+#include <iostream>
+#include <cstdlib>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+using namespace std;
+int n,m,sum,pos;
+int head[50005],e;
+int s[50005],from[50005];
+int fa[50005][20],deep[50005],num[50005];
+int solid[50005],p[50005],fp[50005];
+struct N
+{
+	int l,r,mid;
+	int add,w;
+}nod[50005*4];
+struct M
+{
+	int v,next;
+}edge[100005];
+void addedge(int u,int v)
+{
+	edge[e].v=v;
+	edge[e].next=head[u];
+	head[u]=e++;
+	
+	edge[e].v=u;
+	edge[e].next=head[v];
+	head[v]=e++;
+}
+void LCA(int st,int f,int d)
+{
+	deep[st]=d;
+	fa[st][0]=f;
+	num[st]=1;
+	int i,v;
+	for(i=1;i<20;i++)
+		fa[st][i]=fa[fa[st][i-1]][i-1];
+	for(i=head[st];i!=-1;i=edge[i].next)
+	{
+		v=edge[i].v;
+		if(v!=f)
+		{
+			LCA(v,st,d+1);
+			num[st]+=num[v];
+			if(solid[st]==-1||num[v]>num[solid[st]])
+				solid[st]=v;
+		}
+	}
+}
+void getpos(int st,int sp)
+{
+	from[st]=sp;
+	if(solid[st]!=-1)
+	{
+		p[st]=pos++;
+		fp[p[st]]=st;
+		getpos(solid[st],sp);
+	}
+	else
+	{
+		p[st]=pos++;
+		fp[p[st]]=st;
+		return;
+	}
+	int i,v;
+	for(i=head[st];i!=-1;i=edge[i].next)
+	{
+		v=edge[i].v;
+		if(v!=solid[st]&&v!=fa[st][0])
+			getpos(v,v);
+	}
+}
+int getLCA(int u,int v)
+{
+	if(deep[u]<deep[v])
+		swap(u,v);
+	int d=1<<19,i;
+	for(i=19;i>=0;i--)
+	{
+		if(d<=deep[u]-deep[v])
+			u=fa[u][i];
+		d>>=1;
+	}
+	if(u==v)
+		return u;
+	for(i=19;i>=0;i--)
+		if(fa[u][i]!=fa[v][i])
+		{
+			u=fa[u][i];
+			v=fa[v][i];
+		}
+	return fa[u][0];
+}
+void init(int p,int l,int r)
+{
+	nod[p].l=l;
+	nod[p].r=r;
+	nod[p].mid=(l+r)>>1;
+	nod[p].add=0;
+	if(l==r)
+		nod[p].w=s[fp[l]];
+	else
+	{
+		init(p<<1,l,nod[p].mid);
+		init(p<<1|1,nod[p].mid+1,r);
+	}
+}
+void lazy(int p)
+{
+	if(nod[p].add!=0)
+	{
+		nod[p<<1].add+=nod[p].add;
+		nod[p<<1|1].add+=nod[p].add;
+		nod[p].add=0;
+	}
+}
+void update(int p,int l,int r,int v)
+{
+	if(nod[p].l==l&&nod[p].r==r)
+	{
+		nod[p].add+=v;
+		return;
+	}
+	lazy(p);
+	if(nod[p].mid<l)
+		update(p<<1|1,l,r,v);
+	else if(nod[p].mid>=r)
+		update(p<<1,l,r,v);
+	else
+	{
+		update(p<<1,l,nod[p].mid,v);
+		update(p<<1|1,nod[p].mid+1,r,v);
+	}		
+}
+int read(int p,int l,int r)
+{
+	if(nod[p].l==l&&nod[p].r==r)
+		return nod[p].w+nod[p].add;
+	lazy(p);
+	if(nod[p].mid<l)
+		return read(p<<1|1,l,r);
+	else if(nod[p].mid>=r)
+		return read(p<<1,l,r);
+}
+void jump(int st,int ed,int val)
+{
+	while(deep[st]>=deep[ed])
+	{
+		int tmp=from[st];
+		if(deep[tmp]<deep[ed])
+			tmp=ed;
+		update(1,p[tmp],p[st],val);
+		st=fa[tmp][0];
+	}
+}
+void change(int st,int ed,int val)
+{
+	int lca=getLCA(st,ed);
+	jump(st,lca,val);
+	jump(ed,lca,val);
+	jump(lca,lca,-val);
+}
+int main()
+{
+	while(scanf("%d%d%d",&n,&m,&sum)==3)
+	{
+		int i;
+		s[0]=0;pos=0;deep[0]=-1;
+		memset(fa,0,sizeof(fa));
+		for(i=1;i<=n;i++)
+		{
+			solid[i]=-1;
+			scanf("%d",&s[i]);
+		}
+		memset(head,-1,sizeof(head));
+		e=0;
+		for(i=0;i<m;i++)
+		{
+			int a,b;
+			scanf("%d%d",&a,&b);
+			addedge(a,b);
+		}
+		LCA(1,0,0);
+		getpos(1,1);
+		init(1,0,pos-1);
+		for(i=0;i<sum;i++)
+		{
+			char que[5];
+			scanf("%s",que);
+			if(que[0]!='Q')
+			{
+				int a,b,c;
+				scanf("%d%d%d",&a,&b,&c);
+				if(que[0]=='D')
+					c=-c;
+				change(a,b,c);
+			}
+			else
+			{
+				int a;
+				scanf("%d",&a);
+				printf("%d\n",read(1,p[a],p[a]));
+			}
+		}
+	}
+	return 0;
+}
+	\end{lstlisting}

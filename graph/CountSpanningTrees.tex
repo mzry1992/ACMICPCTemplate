@@ -1,0 +1,14 @@
+\subsection{生成树计数}
+	根据邻接矩阵构造Laplacian matrix。
+	\begin{lstlisting}[language=c++]
+Matrix laplacian;
+laplacian.clear();
+for (int i = 0;i < n;i++)
+	for (int j = 0;j < n;j++)
+	if (i != j && G[i][j])
+	{
+		laplacian.a[i][j] = -1;
+		laplacian.a[i][i]++;
+	}
+printf("%d\n",laplacian.det(n-1));
+	\end{lstlisting}

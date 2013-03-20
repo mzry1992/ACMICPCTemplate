@@ -1,0 +1,23 @@
+\subsection{KMP}
+	求A[0..i]的一个后缀最多能匹配B的前缀多长。
+	先对B进行自匹配然后与A匹配。
+	KMP[i]就是对应答案，p[i]+1是B[0..i]的一个后缀最多能匹配B的前缀多长。
+	\begin{lstlisting}[language=c++]
+//自匹配过程
+int j;
+p [0] = j = -1;
+for ( int i = 1; i < lb; i++)
+{
+	while (j >= 0 && b[j + 1] != b[i]) j = p[j];
+	if (b[j + 1] == b[i]) j ++;
+	p[i] = j;
+}
+//下面是匹配过程
+j = -1;
+for ( int i = 0; i < la; i++)
+{
+	while (j >= 0 && b[j + 1] != a[i]) j = p[j];
+	if (b[j + 1] == a[i]) j ++;
+	KMP[i] = j + 1;
+}
+	\end{lstlisting} 

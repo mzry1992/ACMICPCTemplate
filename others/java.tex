@@ -1,0 +1,79 @@
+\subsection{Java}
+	\subsubsection{文件操作}
+	\begin{lstlisting}[language=java]
+import java.io.*;
+import java.util.*;
+import java.math.*;
+import java.text.*;
+
+public class Main
+{
+
+	public static void main(String args[]) throws FileNotFoundException, IOException
+	{
+		Scanner sc = new Scanner(new FileReader("a.in"));
+		PrintWriter pw = new PrintWriter(new FileWriter("a.out"));
+		int n,m;
+		n=sc.nextInt();//读入下一个INT
+		m=sc.nextInt();
+
+		for(ci=1; ci<=c; ++ci)
+		{
+			pw.println("Case #"+ci+": easy for output");
+		}
+
+		pw.close();//关闭流并释放，这个很重要，否则是没有输出的
+		sc.close();//关闭流并释放
+	}
+}
+	\end{lstlisting}
+	
+	\subsubsection{优先队列}
+	\begin{lstlisting}[language=java]
+PriorityQueue queue = new PriorityQueue( 1, new Comparator()
+{
+	public int compare( Point a, Point b )
+	{
+	if( a.x < b.x || a.x == b.x && a.y < b.y )
+		return -1;
+	else if( a.x == b.x && a.y == b.y )
+		return 0;
+	else
+		return 1;
+	}
+});
+	\end{lstlisting}
+	
+	\subsubsection{Map}
+	\begin{lstlisting}[language=java]
+Map map = new HashMap();
+map.put("sa","dd");
+String str = map.get("sa").toString;
+
+for(Object obj : map.keySet()){
+	Object value = map.get(obj );
+}
+	\end{lstlisting}
+	
+	\subsubsection{sort}
+	\begin{lstlisting}[language=java]
+static class cmp implements Comparator
+{
+	public int compare(Object o1,Object o2)
+	{
+	BigInteger b1=(BigInteger)o1;
+	BigInteger b2=(BigInteger)o2;
+	return b1.compareTo(b2);
+	}
+}
+public static void main(String[] args) throws IOException
+{
+	Scanner cin = new Scanner(System.in);
+	int n;
+	n=cin.nextInt();
+	BigInteger[] seg = new BigInteger[n];
+	for (int i=0;i<n;i++)
+	seg[i]=cin.nextBigInteger();
+	Arrays.sort(seg,new cmp());
+}
+	\end{lstlisting}

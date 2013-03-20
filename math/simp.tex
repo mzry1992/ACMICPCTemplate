@@ -1,0 +1,19 @@
+\subsection{自适应simp}
+	过了哈尔滨积分题，精度要求不高的时候可以考虑使用。\\
+	暂时我只能用这个做做类似于凸函数或者凹函数的函数。
+	\begin{lstlisting}[language=c++]
+double Simp(double l,double r)
+{
+	double h = (r-l)/2.0;
+	return h*(calc(l)+4*calc((l+r)/2.0)+calc(r))/3.0;
+}
+
+double rSimp(double l,double r)
+{
+	double mid = (l+r)/2.0;
+	if (abs((Simp(l,r)-Simp(l,mid)-Simp(mid,r)))/15 < eps)
+		return Simp(l,r);
+	else
+		return rSimp(l,mid)+rSimp(mid,r);
+}
+	\end{lstlisting}

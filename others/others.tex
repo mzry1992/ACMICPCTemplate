@@ -1,0 +1,12 @@
+\subsection{其它}
+	\subsubsection{对跑脚本}
+	\begin{lstlisting}[language=sh]
+while true; do
+	./gen > input
+	./sol < input > output.sol
+	./bf < input > output.bf
+
+	diff output.sol output.bf
+	if [ $? -ne 0 ] ; then break; fi
+done
+	\end{lstlisting}

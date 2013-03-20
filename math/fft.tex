@@ -1,0 +1,147 @@
+\subsection{FFT}
+	\begin{lstlisting}[language=c++]
+const double PI= acos(-1.0);
+struct vir
+{
+	double re,im; //实部和虚部
+	vir(double a=0,double b=0)
+	{
+		re=a;
+		im=b;
+	}
+	vir operator +(const vir &b)
+	{return vir(re+b.re,im+b.im);}
+	vir operator -(const vir &b)
+	{return vir(re-b.re, im-b.im);}
+	vir operator *(const vir &b)
+	{return vir(re*b.re-im*b.im , re*b.im+im*b.re);}
+};
+vir x1[200005],x2[200005];
+void change(vir *x,int len,int loglen)
+{
+	int i,j,k,t;
+	for(i=0;i<len;i++)
+	{
+		t=i;
+		for(j=k=0; j<loglen; j++,t>>=1)
+			k= (k<<1)|(t&1);
+		if(k<i)
+		{
+		//	printf("%d %d\n",k,i);
+			vir wt=x[k];
+			x[k]=x[i];
+			x[i]=wt;
+		}
+	}
+}
+void fft(vir *x,int len,int loglen)
+{
+	int i,j,t,s,e;
+	change(x,len,loglen);
+	t=1;
+	for(i=0;i<loglen;i++,t<<=1)
+	{
+		s=0;
+		e=s+t;
+		while(s<len)
+		{
+			vir a,b,wo(cos(PI/t),sin(PI/t)),wn(1,0);
+			for(j=s;j<s+t;j++)
+			{
+				a=x[j];
+				b=x[j+t]*wn;
+				x[j]=a+b;
+				x[j+t]=a-b;
+				wn=wn*wo;
+			}
+			s=e+t;
+			e=s+t;
+		}
+	}
+}
+void dit_fft(vir *x,int len,int loglen)
+{
+	int i,j,s,e,t=1<<loglen;
+	for(i=0;i<loglen;i++)
+	{
+		t>>=1;
+		s=0;
+		e=s+t;
+		while(s<len)
+		{
+			vir a,b,wn(1,0),wo(cos(PI/t),-sin(PI/t));
+			for(j=s;j<s+t;j++)
+			{
+				a=x[j]+x[j+t];
+				b=(x[j]-x[j+t])*wn;
+				x[j]=a;
+				x[j+t]=b;
+				wn=wn*wo;
+			}
+			s=e+t;
+			e=s+t;
+		}
+	}
+	change(x,len,loglen);
+	for(i=0;i<len;i++)
+		x[i].re/=len;
+}
+int main()
+{
+	char a[100005],b[100005];
+	int i,len1,len2,len,loglen;
+	int t,over;
+	while(scanf("%s%s",a,b)!=EOF)
+	{
+		len1=strlen(a)<<1;
+		len2=strlen(b)<<1;
+		len=1;loglen=0;
+		while(len<len1)
+		{
+			len<<=1;	loglen++;
+		}
+		while(len<len2)
+		{
+			len<<=1;	loglen++;
+		}
+		for(i=0;a[i];i++)
+		{
+			x1[i].re=a[i]-'0';
+			x1[i].im=0;
+		}
+		for(;i<len;i++)
+			x1[i].re=x1[i].im=0;
+		for(i=0;b[i];i++)
+		{
+			x2[i].re=b[i]-'0';
+			x2[i].im=0;
+		}
+		for(;i<len;i++)
+			x2[i].re=x2[i].im=0;
+		fft(x1,len,loglen);
+		fft(x2,len,loglen);
+		for(i=0;i<len;i++)
+			x1[i] = x1[i]*x2[i];
+		dit_fft(x1,len,loglen);
+		for(i=(len1+len2)/2-2,over=len=0;i>=0;i--)
+		{
+			t=(int)(x1[i].re+over+0.5);
+			a[len++]= t%10;
+			over = t/10;
+		}
+		while(over)
+		{
+			a[len++]=over%10;
+			over/=10;
+		}
+		for(len--;len>=0&&!a[len];len--);
+			if(len<0)
+			putchar('0');
+			else
+				for(;len>=0;len--)
+					putchar(a[len]+'0');
+		putchar('\n');
+	}
+	return 0;
+}
+	\end{lstlisting}

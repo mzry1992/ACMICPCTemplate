@@ -1,0 +1,55 @@
+\subsection{hashmap}
+	\begin{lstlisting}[language=c++]
+struct hash_map
+{
+	const static int mod=10007;
+	int head[mod];
+	struct hash_tables
+	{
+		int key;
+		int val;
+		int next;
+	} ele[10007];
+	int N;
+	int getHash(int x)
+	{
+		return x%mod; //小心负数
+	}
+	void init()
+	{
+		memset(head,255,sizeof(head));
+		N=0;
+	}
+	void clear()
+	{
+		for (int i = 0; i < N; i++)
+			head[getHash(ele[i].key)] = -1;
+		N = 0;
+	}
+	int fint(int x)
+	{
+		for (int i=head[getHash(x)]; i!=-1; i=ele[i].next)
+			if (ele[i].key==x) return i;
+		return -1;
+	}
+	void insert(int x)
+	{
+		int tmp=getHash(x);
+		ele[N].key=x;
+		ele[N].val=0;
+		ele[N].next=head[tmp];
+		head[tmp]=N++;
+	}
+	int& operator [](int x)
+	{
+		int tmp=fint(x);
+		if (tmp==-1)
+		{
+			insert(x);
+			return ele[N-1].val;
+		}
+		else
+			return ele[tmp].val;
+	}
+};
+	\end{lstlisting}

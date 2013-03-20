@@ -1,0 +1,147 @@
+\subsection{baby step giant step}
+	\subsubsection{BSGS}
+	\begin{lstlisting}[language=c++]
+#define MOD 76543
+int hs[MOD], head[MOD], next[MOD], id[MOD], top;
+void insert(int x, int y)
+{
+	int k = x%MOD;
+	hs[top] = x, id[top] = y, next[top] = head[k], head[k] = top++;
+}
+int find(int x)
+{
+	int k = x%MOD;
+	for (int i = head[k]; i; i = next[i]) if (hs[i] == x) 
+		return id[i];
+	return -1;
+}
+int BSGS(int a, int b, int n)
+{
+	memset(head, 0, sizeof(head));
+	top = 1;
+	if (b==1) return 0;
+	int m = sqrt(n+.0), j;
+	long long x = 1, p = 1;
+	for (int i = 0; i < m; ++i, p = p*a%n) insert(p*b%n, i);
+	for (long long i = m; ; i += m)
+	{
+		if ((j = find(x=x*p%n)) != -1) return i-j;
+		if (i > n) break;
+	}
+	return -1;
+}
+	\end{lstlisting}
+
+	\subsubsection{何老师的版}
+	\begin{lstlisting}[language=c++]
+//离散对数
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <algorithm>
+using namespace std;
+typedef long long LL;
+struct Hash
+{
+    static const int MOD = 100007;
+    static const int MaxN = 100005;
+    struct Node
+    {
+        LL k, v;//A^k = v
+        Node *nxt;
+    } buf[MaxN], *g[MaxN], *pt;
+    void init()
+    {
+        memset(g,0,sizeof(g)) ;
+        pt = buf;
+    }
+    LL find(LL v)
+    {
+        for (Node *now = g[v%MOD]; now; now = now->nxt)
+            if (now->v == v)
+                return now->k;
+        return -1;
+    }
+    void Ins(LL k, LL v)
+    {
+        if ( find (v) != -1)return;
+        pt->k = k;
+        pt->v = v;
+        pt->nxt = g[v % MOD];
+        g[v % MOD] = pt++;
+    }
+}hash;
+LL gcd(LL x, LL y)
+{
+    return y==0?x:gcd(y,x%y);
+}
+LL e_gcd(LL a, LL b, LL &x, LL &y)
+{
+    if (b==0)
+    {
+        x = 1;
+        y = 0;
+        return a;
+    }
+    LL ret = e_gcd(b, a%b, y, x) ;
+    y = y - a/b*x;
+    return ret ;
+}
+LL Baby(LL A, LL B, LL C)//A^x = B (mod C)
+{
+    B %= C;
+    A %= C;
+    LL x = 1%C, y;
+    for (int i = 0; i <= 64; i++)
+    {
+        if (x==B)return i;
+        x = x*A % C;
+    }
+
+    LL D = 1%C, g;
+    int cnt = 0;
+    while((g = gcd(A,C)) != 1)
+    {
+        if (B%g) return -1;
+        cnt++;
+        C /= g;
+        B /= g;
+        D = A/g * D % C;
+    }
+    hash. init () ;
+    int m = (int)sqrt(C);
+    LL Am = 1%C;
+    hash.Ins(0,Am);
+    for (int i = 1; i <= m; i++)
+    {
+        Am = Am*A % C;
+        hash. Ins ( i ,Am);
+    }
+    for (int i = 0; i <= m; i++)
+    {
+		//D*x = B (mod C), D*x + C*y = B
+        g = e_gcd(D,C,x,y);
+        x = (x*B/g%C+C)%C;
+        LL k = hash.find(x) ;
+        if (k != -1) return i*m+k+cnt;
+        D = D*Am % C;
+    }
+    return -1;
+}
+int main()
+{
+    int A,B,C;
+    while(scanf("%d%d%d",&A,&C,&B) == 3 && (A+B+C))
+    {
+        if (B>=C)
+        {
+            puts("Orz,I can’t find D!");
+            continue;
+        }
+        LL ret = Baby(A,B,C);
+        if ( ret == -1)puts("Orz,I can’t find D!");
+        else printf ("%I64d\n",ret);
+    }
+    return 0;
+}
+	\end{lstlisting}

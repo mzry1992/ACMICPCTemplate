@@ -1,0 +1,101 @@
+\subsection{欧拉路}
+	\subsubsection{有向图}
+	\begin{lstlisting}[language=c++]
+void solve(int x)
+{
+	int i;
+	if (!match[x])
+	{
+		path[++l]=x;
+		return ;
+	}
+	for (i=1; i<=n; i++)
+		if (b[x][i])
+		{
+			b[x][i]--;
+			match[x]--;
+			solve(i);
+		}
+	path[++l]=x;
+}
+	\end{lstlisting}
+	
+	\subsubsection{无向图}
+	\begin{lstlisting}[language=c++]
+void solve(int x)
+{
+	int i;
+	if (!match[x])
+	{
+		path[++l]=x;
+		return ;
+	}
+	for (i=1; i<=n; i++)
+		if (b[x][i])
+		{
+			b[x][i]--;
+			b[i][x]--;
+			match[x]--;
+			match[i]--;
+			solve(i);
+		}
+	path[++l]=x;
+}
+	\end{lstlisting}
+
+	\subsubsection{混合图}
+	zju1992
+	\begin{lstlisting}[language=c++]
+int in[MAXN+100],out[MAXN+100];
+int main()
+{
+	int t;
+	scanf("%d",&t);
+	while (t--)
+	{
+		int n,m;
+		scanf("%d%d",&n,&m);
+		N=n+2;L=-1;
+		for (int i=0;i<N;i++)
+			head[i]=-1;
+		memset(in,0,sizeof(in));
+		memset(out,0,sizeof(out));
+
+		for (int i=0;i<m;i++)
+		{
+			int x,y,z;
+			scanf("%d%d%d",&x,&y,&z);
+			in[y]++;out[x]++;
+			if (!z)
+				add_edge(x,y,1);
+		}
+		int flag=1;
+		for (int i=1;i<=n;i++)
+		{
+			if (in[i]-out[i]>0)
+				add_edge(i,n+1,(in[i]-out[i])/2);
+			else
+			if (out[i]-in[i]>0)
+				add_edge(0,i,(out[i]-in[i])/2);
+			//printf("%d %d %d\n",i,out[i],in[i]);
+			if ((in[i]+out[i])&1)
+			{
+				flag=0;
+				break;
+			}
+		}
+		maxflow(0,n+1);
+		for (int i=head[0];i!=-1;i=edge[i].next)
+			if (edge[i].cap>0 && edge[i].cap>edge[i].flow)
+			{
+				flag=0;
+				break;
+			}
+		if (flag)
+			puts("possible");
+		else
+			puts("impossible");
+	}
+	return 0;
+}
+	\end{lstlisting}

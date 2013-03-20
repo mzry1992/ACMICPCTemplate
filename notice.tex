@@ -1,0 +1,80 @@
+\section{注意事项}
+	\Large
+	\hrule\ 
+	\\
+	输入输出格式？调试信息？初始化？算术溢出？数组大小？\\
+	\\
+	左右端点范围？acos/asin/sqrt 函数定义域？精度问题？\\
+	\\
+	二分答案？暴力？单调性？凸性？块状结构？函数式？对偶问题？\\
+	\\
+	\hrule\
+	\\
+	排序的时候注意一下是否需要记录排序前的位置！\\
+	\\
+	使用map进行映射的时候，不要用下面这种不安全写法
+	\begin{lstlisting}[language=c++,
+    basicstyle=\sf\Large,
+    numberstyle=\sf\Large,
+    commentstyle=\sf\Large]
+if (mp.find(s) == mp.end())
+	mp[s] = mp.size()-1;//挂成狗
+
+if (mp.find(s) == mp.end())
+{
+	int tmp = mp.size();
+	mp[s] = tmp;//正确
+}
+	\end{lstlisting}
+	~\\
+	$10^{6}$数量级慎用后缀数组\\
+	\\
+	TLE的时候要冷静哟。。\\
+	\\
+	思考的时候结合具体步骤来的话 会体会到一些不同的东西\\
+	\\
+	C++与G++是很不一样的。。。\\
+	\\
+	map套字符串是很慢的。。。\\ 
+	\\
+	栈会被记录内存。。。\\
+	\\
+	浮点数最短路要注意取$\leq$来判断更新。。。\\
+	\\
+	注意 long long\\
+	\\
+	不要相信.size()\\
+	\\
+	重复利用数组时 小心数组范围\\
+	\\
+	先构思代码框架 每当实际拍马框架变化时 停手 重新思考\\
+	\\
+	有时候四边形不等式也是帮得上忙的 dp 优化是可以水的\\
+	\\
+	结构体里面带数组会非常慢,有时候 BFS 把数组压成数字会快很多。\\
+	\\
+	\begin{lstlisting}[language=c++,
+    basicstyle=\sf\Large,
+    numberstyle=\sf\Large,
+    commentstyle=\sf\Large]
+void fun(int a[])
+{
+	printf("%d\n",sizeof(a));
+}
+	\end{lstlisting}
+	结果是 sizeof(a[0]),如果传数组指针然后要清空的话不要用 sizeof。\\
+	\\
+	sqrt 某些时候会出现 sqrt(-0.00)的问题。\\
+	\\
+	将code::blocks的默认终端改成gnome-terminal
+	\begin{lstlisting}[language=c++,
+    basicstyle=\sf\Large,
+    numberstyle=\sf\Large,
+    commentstyle=\sf\Large]
+gnome-terminal -t $TITLE -x
+	\end{lstlisting}
+	~\\
+	最小割割集找法 在残量网络中从源点出发能到的点集记为S原图中S到S’的边即是最小割集\\
+	\\
+	double全局变量初始值可能不是$0$\\
+	\normalsize

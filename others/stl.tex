@@ -1,0 +1,196 @@
+\subsection{C++\&STL常用函数}
+    \subsubsection{lower\_bound/upper\_bound}
+	不解释\\
+	\begin{lstlisting}[language=c++]
+iterator lower_bound(const key_type &key )
+\\`返回一个迭代器，指向键值>= key的第一个元素。`
+iterator upper_bound(const key_type &key )
+\\`返回一个迭代器，指向键值> key的第一个元素。`
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int main () {
+  int myints[] = {10,20,30,30,20,10,10,20};
+  vector<int> v(myints,myints+8);           
+  // 10 20 30 30 20 10 10 20
+  vector<int>::iterator low,up;
+
+  sort (v.begin(), v.end());                
+  // 10 10 10 20 20 20 30 30
+
+  low=lower_bound (v.begin(), v.end(), 20);           
+  // 10 10 10 20 20 20 30 30
+  //          ^
+  up= upper_bound (v.begin(), v.end(), 20);           
+  // 10 10 10 20 20 20 30 30
+  //                   ^
+
+  cout << "lower_bound at position " << int(low- v.begin()) << endl;
+  cout << "upper_bound at position " << int(up - v.begin()) << endl;
+
+  return 0;
+}
+	\end{lstlisting}
+	Output:\\
+	\begin{lstlisting}[language=c++]
+lower_bound at position 3
+upper_bound at position 6
+	\end{lstlisting}
+	
+    \subsubsection{rotate}
+	把数组后一半搬到前面\\
+	\begin{lstlisting}[language=c++]
+template <class ForwardIterator>
+  void rotate ( ForwardIterator first, ForwardIterator middle,
+                ForwardIterator last );
+	\end{lstlisting}
+	
+    \subsubsection{nth\_element}
+	\begin{lstlisting}[language=c++]
+template <class RandomAccessIterator>
+  void nth_element ( RandomAccessIterator first, RandomAccessIterator nth,
+                     RandomAccessIterator last );
+
+template <class RandomAccessIterator, class Comapre>
+  void nth_element ( RandomAccessIterator first, RandomAccessIterator nth,
+                     RandomAccessIterator last, Compare comp );
+	\end{lstlisting}
+	
+    \subsubsection{bitset}
+	取用\\
+	\begin{lstlisting}[language=c++]
+bitset<4> mybits;
+
+mybits[1]=1;             // 0010
+mybits[2]=mybits[1];     // 0110
+	\end{lstlisting}
+	翻转\\
+	\begin{lstlisting}[language=c++]
+bitset<4> mybits (string("0001"));
+
+cout << mybits.flip(2) << endl;     // 0101
+cout << mybits.flip() << endl;      // 1010
+	\end{lstlisting}
+	运算\\
+	\begin{lstlisting}[language=c++]
+bitset<4> first (string("1001"));
+bitset<4> second (string("0011"));
+
+cout << (first^=second) << endl;          // 1010 (XOR,assign)
+cout << (first&=second) << endl;          // 0010 (AND,assign)
+cout << (first|=second) << endl;          // 0011 (OR,assign)
+
+cout << (first<<=2) << endl;              // 1100 (SHL,assign)
+cout << (first>>=1) << endl;              // 0110 (SHR,assign)
+
+cout << (~second) << endl;                // 1100 (NOT)
+cout << (second<<1) << endl;              // 0110 (SHL)
+cout << (second>>1) << endl;              // 0001 (SHR)
+
+cout << (first==second) << endl;          // false (0110==0011)
+cout << (first!=second) << endl;          // true  (0110!=0011)
+
+cout << (first&second) << endl;           // 0010
+cout << (first|second) << endl;           // 0111
+cout << (first^second) << endl;           // 0101
+	\end{lstlisting}
+	
+    \subsubsection{multimap}
+	遍历\\
+	\begin{lstlisting}[language=c++]
+multimap<char,int> mymm;
+multimap<char,int>::iterator it;
+char c;
+
+mymm.insert(pair<char,int>('x',50));
+mymm.insert(pair<char,int>('y',100));
+mymm.insert(pair<char,int>('y',150));
+mymm.insert(pair<char,int>('y',200));
+mymm.insert(pair<char,int>('z',250));
+mymm.insert(pair<char,int>('z',300));
+
+for (c='x'; c<='z'; c++)
+{
+  cout << "There are " << (int)mymm.count(c);
+  cout << " elements with key " << c << ":";
+  for (it=mymm.equal_range(c).first; it!=mymm.equal_range(c).second; ++it)
+    cout << " " << (*it).second;
+  cout << endl;
+}
+/*
+Output:
+
+There are 1 elements with key x: 50
+There are 3 elements with key y: 100 150 200
+There are 2 elements with key z: 250 300
+*/
+	\end{lstlisting}
+	二分查找\\
+	\begin{lstlisting}[language=c++]
+multimap<char,int> mymultimap;
+multimap<char,int>::iterator it,itlow,itup;
+
+mymultimap.insert(pair<char,int>('a',10));
+mymultimap.insert(pair<char,int>('b',121));
+mymultimap.insert(pair<char,int>('c',1001));
+mymultimap.insert(pair<char,int>('c',2002));
+mymultimap.insert(pair<char,int>('d',11011));
+mymultimap.insert(pair<char,int>('e',44));
+
+itlow=mymultimap.lower_bound ('b');  // itlow points to b
+itup=mymultimap.upper_bound ('d');   // itup points to e (not d)
+
+// print range [itlow,itup):
+for ( it=itlow ; it != itup; it++ )
+  cout << (*it).first << " => " << (*it).second << endl;
+  
+/*
+Output:
+
+b => 121
+c => 1001
+c => 2002
+d => 11011
+*/
+	\end{lstlisting}
+	删除\\
+	\begin{lstlisting}[language=c++]
+multimap<char,int> mymultimap;
+multimap<char,int>::iterator it;
+
+// insert some values:
+mymultimap.insert(pair<char,int>('a',10));
+mymultimap.insert(pair<char,int>('b',20));
+mymultimap.insert(pair<char,int>('b',30));
+mymultimap.insert(pair<char,int>('c',40));
+mymultimap.insert(pair<char,int>('d',50));
+mymultimap.insert(pair<char,int>('d',60));
+mymultimap.insert(pair<char,int>('e',70));
+mymultimap.insert(pair<char,int>('f',80));
+
+it=mymultimap.find('b');
+mymultimap.erase (it);                     
+// erasing by iterator (1 element)
+
+mymultimap.erase ('d');                    
+// erasing by key (2 elements)
+
+it=mymultimap.find ('e');
+mymultimap.erase ( it, mymultimap.end() ); 
+// erasing by range
+
+// show content:
+for ( it=mymultimap.begin() ; it != mymultimap.end(); it++ )
+  cout << (*it).first << " => " << (*it).second << endl;
+    
+/*
+Output:
+
+a => 10
+b => 30
+c => 40
+*/
+	\end{lstlisting}

@@ -1,0 +1,119 @@
+\subsection{其它公式}
+	\subsubsection{Polya}
+	设$G$是$p$个对象的一个置换群，用$k$种颜色去染这$p$个对象，若一种染色方案在群$G$的作用下变为另一种方案，则这两个方案当作是同一种方案，这样的不同染色方案数为：\\
+	$L=\frac{1}{\left |G  \right |}\times \Sigma(k^{C(f)}), f\in G$\\
+	$C(f)$为循环节，$\left |G  \right |$表示群的置换方法数\\
+	\\
+	对于有$n$个位置的手镯，有$n$种旋转置换和$n$种翻转置换
+	\begin{description}
+		\item[对于旋转置换：] ~\\
+		$C(f_i)=gcd(n,i)$ ,$i$表示一次转过i颗宝石，$i=0$时$c=n$；\\
+		\item[对于翻转置换：] ~\\
+		\begin{description}
+			\item[如果$n$为偶数：] 则有$\frac{n}{2}$个置换$C(f)=\frac{n}{2}$，有$\frac{n}{2}$个置换 $C(f)=\frac{n}{2}+1$\\
+			\item[如果$n$为奇数：] $C(f)=\frac{n}{2}+1$\\
+		\end{description}
+	\end{description}
+
+	\subsubsection{拉格朗日插值法}
+	已知$y=a_0+a_1x+a_2x^2+\cdots +a_{n-1}x^{n-1}$曲线上的$n$个点$(x_1,y_1),(x_2,y_2),(x_3,y_3)\cdots (x_n,y_n)$\\
+	用拉格朗日插值法可以不求系数可知任意$x$对应的$y$值。\\
+	\[ \begin{split}
+	y &= y_1\frac{(x-x_2)(x-x_3)\cdots (x-x_n)}{(x_1-x_2)(x_1-x_3)\cdots (x_1-x_n)}\\
+	&+ y_2\frac{(x-x_1)(x-x_3)\cdots (x-x_n)}{(x_2-x_1)(x_2-x_3)\cdots (x_2-x_n)}\\
+	&+ \cdots \\
+	&+ y_n\frac{(x-x_1)(x-x_2)\cdots (x-x_{n-1})}{(x_n-x_1)(x_n-x_2)\cdots (x_n-x_{n-1})}\\
+	\end{split}\]
+	特别的，如果$x_1\sim x_n$为 连续自然数，那么对于下一个自然数对应的$y$值为：\\
+	\[y_{n+1}=(-1)^{n-1}C_n^0y_1+(-1)^{n-2}C_n^1y_2+\cdots +(-1)^0C_n^{n-1}y_n\]
+	这个组合系数可以通过高斯消元暴出来，前提是要猜到它满足递推关系。\\
+	
+	\subsubsection{正多面体顶点着色}
+	正四面体：$N = \frac{(n^{4}+11\times n^{2})}{12}$\\
+	正六面体：$N = \frac{(n^{8}+17\times n^{4}+6\times n^{2})}{24}$\\
+	正八面体：$N = \frac{(n^{6}+3\times n^{4}+12\times n^{3}+8\times n^{2})}{24}$\\
+	正十二面体：$N = \frac{(n^{20}+15\times n^{10}+20\times n^{8}+24\times n^{4})}{60}$\\
+	正二十面体：$N = \frac{(n^{12}+15\times n^{6}+44\times n^{4})}{60}$\\
+	
+	\subsubsection{求和公式}
+	$\sum{k} = \frac{n\times (n+1)}{2}$\\
+	$\sum{2k-1} = n^{2}$\\
+	$\sum{k^{2}} = \frac{n\times (n+1)\times (2n+1)}{6}$\\
+	$\sum{(2k-1)^{2}} = \frac{n\times (4n^{2}-1)}{3}$\\
+	$\sum{k^{3}} = (\frac{n\times (n+1)}{2})^{2}$\\
+	$\sum{(2k-1)^{3}} = n^{2}\times (2n^{2}-1)$\\
+	$\sum{k^{4}} = \frac{n\times (n+1)\times (2n+1)\times (3n^{2}+3n-1)}{30}$\\
+	$\sum{k^{5}} = \frac{n^{2}\times (n+1)^{2}\times (2n^{2}+2n-1)}{12}$\\
+	$\sum{k\times (k+1)} = \frac{n\times (n+1)\times (n+2)}{3}$\\
+	$\sum{k\times (k+1)\times (k+2)} = \frac{n\times (n+1)\times (n+2)\times (n+3)}{4}$\\
+	$\sum{k\times (k+1)\times (k+2)\times (k+3)} = \frac{n\times (n+1)\times (n+2)\times (n+3)\times (n+4)}{5}$\\
+	
+	\subsubsection{几何公式}
+	球扇形：\\
+	全面积：$T = \pi r(2h+r_0)$，$h$为球冠高，$r_0$为球冠底面半径\\
+	体积：$V = \frac{2\pi r^{2}h}{3}$\\
+	
+	\subsubsection{小公式}
+	Pick 公式：$A = E\times 0.5+I-1$（$A$是多边形面积，$E$是边界上的整点，$I$是多边形内部的整点）\\
+	\\
+	海伦公式：$S = \sqrt{p(p-a)(p-b)(p-c)}$，其中$p = \frac{(a+b+c)}{2}$，$abc$为三角形的三条边长\\
+	\\
+	求$\binom{n}{k}$中素因子$P$的个数：\\
+	\begin {enumerate}
+	\item 把$n$转化为$P$进制，并记它每个位上的和为$S1$
+	\item 把$n-k$，$k$做同样的处理，得到$S2$，$S3$
+	\end{enumerate}
+	则$\binom{n}{k}$中素因子$P$的个数：$\frac{S2+S3-S1}{P-1}$\\
+	\\
+	部分错排公式：\\
+	$n+m$个数中$m$个数必须错排 求排列数
+	\begin{lstlisting}[language=c++]
+dp[i] = n*dp[i-1]+(i-1)*(dp[i-1]+dp[i-2]);
+dp[0] = n!;
+dp[1] = n*n!;
+	\end{lstlisting}
+	$dp[m]$为所求解\\
+	
+	\subsubsection{马步问题}
+	任意步长$(p,q)$无限棋盘可达性判定
+	\begin{lstlisting}[language=c++]
+bool check(int dx,int dy,int p,int q)
+{
+	if (p < 0) p = -p;
+	if (q < 0) q = -q;
+	LL g = gcd(p,q);
+	if (dx % g || dy % g) return false;
+	dx /= g,dy /= g,p = (p / g) & 1,q = (q / g) & 1;
+	return !(p == q && ((dx ^ dy) & 1));
+}
+	\end{lstlisting}
+	拓展:\\
+	若可选马步可以有$N$种$(p_i,q_i)$,令$g = gcd(p_1,q_1,p_2,q_2\cdots p_N,q_N)$,则不在$g$的整数倍点上的节点肯定不可达。坐标除$2g$,同时将可选马步除$g$之后放缩到$2\times 2$之内,即$(\frac{p_i}{g}\mod 2,\frac{q_i}{g}\mod 2)$。若放缩后马步中有$(1,0)$或$(0,1)$,则全放缩后全棋盘可达,否则只可达偶点。\\
+	\\
+	(2,1)马步无限棋盘最小距离
+	\begin{lstlisting}[language=c++]
+int dis(int dx,int dy)
+{
+	if (dx < 0) dx = -dx;
+	if (dy < 0) dy = -dy;
+	if (dx < dy) swap(dx,dy);
+	if (dx & 1)
+	{
+		if (dy & 1) return dis(dx+1,dy-1);
+		if (dx == 1 && dy == 0) return 3;
+		return dis(dx+3,dy)-1;
+	}
+	if (dy & 1)
+	{
+		if (dx == 4 && dy == 3) return 3;
+		return dis(dx-2,dy-1)+1;
+	}
+	if (dx == 0 && dy == 0) return 0;
+	if (dx == 2 && dy == 2) return 4;
+	int c = (((dx-1) / 4)+1)*2;
+	if (dx & 2) dy -= 2;
+	if (dy <= c) return c;
+	dy -= c;
+	return c+(dy-2) / 6*2+2;
+}
+	\end{lstlisting}

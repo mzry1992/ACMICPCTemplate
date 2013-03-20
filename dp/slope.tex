@@ -1,0 +1,60 @@
+\subsection{斜率优化}
+	\begin{lstlisting}[language=c++]
+#include<cstdio>
+#include<algorithm>
+using namespace std;
+int a[1000],sum[1001],dp[1000][1000];
+int deque[1000];
+const int inf=0x7fffffff;
+int N,s,t;
+int calc(int i,int l,int j)//决策值计算
+{
+	return dp[j][l-1]-(sum[i]-sum[j])*(sum[N]-sum[i]);
+}
+bool check(int i,int l)//尾端判断
+{
+	int k1=deque[t-1],k2=deque[t-2];
+	return (long long)(dp[k1][l]-dp[k2][l])*(sum[i]-sum[k1])>(long long)(dp[i][l]-dp[k1][l])*(sum[k1]-sum[k2]);
+}
+int main()
+{
+	int n,m;
+	while (scanf("%d%d",&n,&m),n)
+	{
+		for (int i=0; i<n; i++)
+			scanf("%d",&a[i]);
+		N=n;
+		sum[0]=0;
+		for (int i=0; i<n; i++)
+			sum[i+1]=sum[i]+a[i];
+		dp[0][0]=0;
+		for (int i=0; i<n; i++)
+			for (int j=i+1; j<n; j++)
+				dp[0][0]+=a[i]*a[j];
+		for (int i=1; i<n; i++)
+			dp[i][0]=inf;
+		for (int i=1; i<n; i++)
+		{
+			dp[i][1]=inf;
+			for (int j=0; j<i; j++)
+				dp[i][1]=min(dp[i][1],calc(i,1,j));
+		}
+		for (int l=2; l<=m; l++)
+		{
+			s=t=0;//双端队列清空
+			for (int i=l; i<n; i++)
+			{
+				while (t-s>1 && check(i-1,l-1)) t--;
+				deque[t++]=i-1;//决策加入
+				while (t-s>1 && calc(i,l,deque[s])>calc(i,l,deque[s+1])) s++;
+				dp[i][l]=calc(i,l,deque[s]);
+			}
+		}
+		int ans=0x7fffffff;
+		for (int i=m; i<n; i++)
+			ans=min(ans,dp[i][m]);
+		printf("%d\n",ans);
+	}
+	return 0;
+}
+	\end{lstlisting}
