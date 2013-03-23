@@ -169,6 +169,7 @@ struct SplayTree
 	void Insert(int v)
 	{
 		Node *x = root, *y = nil;
+		//`注意！需要pushdown，之前只在初始化调用过这个函数所有没问题`
 		while (x != nil)
 		{
 			y = x;
