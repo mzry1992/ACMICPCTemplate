@@ -1,4 +1,143 @@
 \subsection{Dancing Links}
+	\subsubsection{最新}
+精确覆盖删除行 重复覆盖删除列
+	\begin{lstlisting}[language=c++]
+#include <cstdio>
+const int MAX1 = 300 * 16;
+const int MAXN = 16;
+const int MAXM = 300;
+struct Link
+{
+	Link *l, *r, *u, *d;
+	int col;
+}link[MAX1 + MAXM + 1], *head;
+int size;
+int a[MAXN][MAXM];
+Link *newLink(int col)
+{
+	link[size].l = link[size].r = link[size].u = link[size].d = &link[size];
+	link[size].col = col;
+	return &link[size ++];
+}
+Link *now[MAXM], *col[MAXM];
+int sum[MAXM];
+void init()
+{
+	size = 0;
+}
+void build(int n, int m)
+{
+	head = newLink(-1); 
+	Link *last = head;
+	for (int i = 0; i < m; ++ i)
+	{
+		now[i] = col[i] = newLink(i);
+		last -> r = col[i];
+		col[i] -> l = last;
+		last = col[i];
+		sum[i] = 0;
+	}
+	head -> l = last;
+	last -> r = head;
+	for (int i = 0; i < n; ++ i)
+	{
+		Link *first = 0, *last = 0;
+		for (int j = 0; j < m; ++ j)
+			if (a[i][j])
+			{
+				Link *p = newLink(j);
+				++ sum[j];
+				now[j] -> d = p;
+				p -> u = now[j];
+				now[j] = p;
+				if (!last)
+					last = first = p;
+				else
+				{
+					last -> r = p;
+					p -> l = last;
+					last = p;
+				}
+			}
+		if (!first)
+			continue;
+		first -> l = last;
+		last -> r = first;
+	}
+	for (int i = 0; i < m; ++ i)
+	{
+		col[i] -> u = now[i];
+		now[i] -> d = col[i];
+	}
+}
+void remove(Link *x)
+{
+	x -> l -> r = x -> r;
+	x -> r -> l = x -> l;
+	for (Link *p = x -> d; p != x; p = p -> d)
+		for (Link *q = p -> r; q != p; q = q -> r)
+		{
+			q -> u -> d = q -> d;
+			q -> d -> u = q -> u;
+			-- sum[q -> col];
+		}
+}
+void resume(Link *x)
+{
+	for (Link *p = x -> u; p != x; p = p -> u)
+		for (Link *q = p -> l; q != p; q = q -> l)
+		{
+			q -> d -> u = q;
+			q -> u -> d = q;
+			++ sum[q -> col];
+		}
+	x -> r -> l = x;
+	x -> l -> r = x;
+}
+bool dfs(int step)
+{
+	printf("%d\n", step);
+	if (head -> r == head)
+		return 1;
+	if (!step)
+		return 0;
+	Link *idx = head -> r;
+	for (Link *p = idx -> r; p != head; p = p -> r)
+		if (sum[p -> col] < sum[idx -> col])
+			idx = p;
+	remove(idx);
+	for (Link *p = idx -> d; p != idx; p = p -> d)
+	{
+		for (Link *q = p -> r; q != p; q = q -> r)
+			remove(col[q -> col]);
+		if (dfs(step - 1))
+			return 1;
+		for (Link *q = p -> l; q != p; q = q -> l)
+			resume(col[q -> col]);
+	}
+	resume(idx);
+	return 0;
+}
+int main()
+{
+	int n, m;
+	while (scanf("%d%d", &n, &m) != EOF)
+	{
+		for (int i = 0; i < n; ++ i)
+			for (int j = 0; j < m; ++ j)
+				//scanf("%d", &a[i][j]);
+				a[i][j] = 0;
+		init();
+		build(n, m);
+		if (dfs(n))
+			puts("Yes, I found it");
+		else
+			puts("It is impossible");
+	}
+	return 0;
+}	
+	\end{lstlisting}
+
 	\subsubsection{估价函数}
 	\begin{lstlisting}[language=c++]
 int h()

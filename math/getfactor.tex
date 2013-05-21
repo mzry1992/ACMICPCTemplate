@@ -139,31 +139,3 @@ int main()
 	return 0;
 }
 	\end{lstlisting}
-	
-	\subsubsection{暴力版本}
-	\begin{lstlisting}[language=c++]
-int N;
-int num[30],fac[30];
-void getFactor(int x)
-{
-	N=0;
-	memset(num,0,sizeof(num));
-	for (int i=0; prime[i]*prime[i]<=x && i<L; i++)
-	{
-		if (x%prime[i]==0)
-		{
-			while (x%prime[i]==0)
-			{
-				x/=prime[i];
-				num[N]++;
-			}
-			fac[N++]=prime[i];
-		}
-	}
-	if (x>1)
-	{
-		num[N]=1;
-		fac[N++]=x;
-	}
-}
-	\end{lstlisting}

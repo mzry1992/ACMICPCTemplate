@@ -10,3 +10,49 @@ while true; do
 	if [ $? -ne 0 ] ; then break; fi
 done
 	\end{lstlisting}
+
+	\subsubsection{vimrc}
+	\begin{lstlisting}[language=sh]
+syntax on
+ 
+set backspace=start,indent,eol
+set showmode
+set showcmd
+set hlsearch
+set nowrap
+set smarttab
+set autoindent
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set number
+filetype indent on
+ 
+set makeprg=g++\ '%:p'\ -o\ '%:p.mzry'\ -Wall\ -g
+function! Gao()
+	exec "silent w"
+	exec "silent !rm -f '%:p.mzry1992'"
+	exec "silent make"
+	exec "cw"
+endfunction
+function! Run()
+	call Gao()
+	let execFile = expand("%:p").".mzry"
+	if filereadable(execFile)
+		exec "silent !gnome-terminal -t '%:p.mzry' --working-directory='%:p:h' -x /usr/bin/cb_console_runner '%:p.mzry'"
+	endif
+endfunction
+ 
+colorscheme slate
+set gfn=Monospace\ 14
+ 
+map <C-F9> :call Gao()<Enter>
+imap <C-F9> <Esc>:call Gao()<Enter>
+map <F9> :call Run()<Enter>
+imap <F9> <Esc>:call Run()<Enter>
+ 
+map <C-c> :s!^!//<Enter>:noh<Enter>
+imap <C-c> <Esc>:s!^!//<Enter>:noh<Enter>
+map <C-x> :s!//!<Enter>:noh<Enter>
+imap <C-x> <Esc>:s!//!<Enter>:noh<Enter>
+	\end{lstlisting}

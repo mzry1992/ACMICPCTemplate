@@ -1,0 +1,98 @@
+\subsection{新版定义}
+\begin{lstlisting}[language=c++]
+#include <cstdio>
+#include <cmath>
+struct Line;
+struct Point
+{
+	double x, y;
+	Point(){}
+	Point(double _x, double _y)
+	{
+		x = _x;
+		y = _y;
+	}
+	bool operator==(Point a)
+	{
+		return x == a.x && y == a.y;
+	}
+	Point operator+(Point a)
+	{
+		return Point(x + a.x, y + a.y);
+	}
+	Point operator-(Point a)
+	{
+		return Point(x - a.x, y - a.y);
+	}
+	Point operator*(double a)
+	{
+		return Point(x * a, y * a);
+	}
+	double operator%(Point a)
+	{
+		return x * a.x + y * a.y;
+	}
+	double operator*(Point a)
+	{
+		return x * a.y - y * a.x;
+	}
+	double operator[](Line l);
+	double getMol()
+	{
+		return sqrt(*this % *this);
+	}
+	Point beOne()
+	{
+		double mol = getMol();
+		return Point(x / mol, y / mol);
+	}
+	bool inLine(Line l, int type); // 0 Ö±Ïß 1 ÉäÏß 2 Ïß¶Î
+	Point rotate(double theta)
+	{
+		return Point(x * cos(theta) - y * sin(theta), x * sin(theta) + y * cos(theta));
+	}
+	Point rotate(Point center, double theta)
+	{
+		Point tmp = *this - center;
+		return tmp.rotate(theta) + center;
+	}
+	void print()
+	{
+		printf("(%.3f, %.3f)\n", x, y);
+	}
+};
+struct Line
+{
+	Point s, t;
+	Line(){}
+	Line(Point _s, Point _t)
+	{
+		s = _s;
+		t = _t;
+	}
+	Point operator&(Line l)
+	{
+		double len = s[l];
+		return s + (t - s).beOne() * len;
+	}
+};
+bool Point :: inLine(Line l, int type)
+{
+	if ((l.s - *this) * (l.t - *this) != 0)
+		return 0;
+	if (type == 0)
+		return 1;
+	else if (type == 1)
+		return (l.s.x < x) == (l.t.x < x) && (l.s.y < y) == (l.t.y < y);
+	else
+		return (l.s.x < x) ^ (l.t.x < x) && (l.s.y < y) ^ (l.t.y < y);
+}
+double Point :: operator[](Line l)
+{
+	return fabs((*this - l.s) * (l.s - l.t).beOne());
+}
+int main()
+{
+	return 0;
+}
+\end{lstlisting}
