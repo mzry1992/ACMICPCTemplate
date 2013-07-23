@@ -9,5 +9,8 @@
 3. 区域赛结束后新加了不少内容
 
 ## TODO List
-1. 把所有代码和tex文档分离开来，然后想办法解决一下注释中的中文问题
-2. (?)写一个网站来做这类事情会不会比较方便？
+1. Multi circle's common area
+  * UESTC 2013 Summer Training #5 Div.1/C.cpp
+2. Splay
+  * UESTC 2013 Summer Training #6 Div.1/F.cpp
+  * 最好写个新的（@HIME）
