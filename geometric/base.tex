@@ -54,25 +54,6 @@ struct Line
 	}
 };
 		\end{lstlisting}
-		
-	\subsubsection{距离：点到直线距离}
-	result:点到直线最近点
-	\begin{lstlisting}[language=c++]
-Point NPT(Point P, Line L)  
-{ 
-	Point result; 
-	double a, b, t; 
-
-	a = L.e.x-L.s.x; 
-	b = L.e.y-L.s.y; 
-	t = ((P.x-L.s.x)*a+(P.y-L.s.y)*b)/(a*a+b*b); 
-
-	result.x = L.s.x+a*t; 
-	result.y = L.s.y+b*t; 
-	return dist(P, result); 
-}
-	\end{lstlisting}
-	
 	\subsubsection{距离：点到线段距离}
 		res：点到线段最近点
 		\begin{lstlisting}[language=c++]
@@ -89,6 +70,7 @@ Point NearestPointToLineSeg(Point P, Line L)
 	{
 		result.x = L.s.x+a*t;
 		result.y = L.s.y+b*t;
+		//点到直线
 	}
 	else
 	{
@@ -98,15 +80,6 @@ Point NearestPointToLineSeg(Point P, Line L)
 			result = L.e;
 	}
 	return result;
-}
-		\end{lstlisting}
-		旧版
-		\begin{lstlisting}[language=c++]
-double CalcDis(Point a,Point s,Point e) //点到线段距离
-{
-	if (sgn((e-s)*(a-s)) < 0 || sgn((s-e)*(a-e)) < 0)
-		return min(dist(a,s),dist(a,e));
-	return abs(((s-a)*(e-a))/dist(s-e));
 }
 		\end{lstlisting}
 		
