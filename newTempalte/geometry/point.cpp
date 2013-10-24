@@ -1,17 +1,8 @@
-struct Point {
-    double x, y;
-    Point() {}
-    Point(double _x, double _y) {
-        x = _x;
-        y = _y;
-    }
-    Point operator -(const Point& b)const {
-        return Point(x - b.x, y - b.y);
-    }
-    double operator *(const Point& b)const {
-        return x * b.y - y * b.x;
-    }
-    double operator &(const Point& b)const {
-        return x * b.x + y * b.y;
-    }
-};
+//Use cross product instead of atan2
+bool cmp(const Point& a,const Point& b) {
+  if (a.y*b.y <= 0) {
+    if (a.y > 0 || b.y > 0)	return a.y < b.y;
+    if (a.y == 0 && b.y == 0)	return a.x < b.x;
+  }
+  return a*b > 0;
+}

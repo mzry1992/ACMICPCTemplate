@@ -1,0 +1,138 @@
+//Node
+struct Node
+{
+	int size,key;
+
+	Node *c[2];
+	Node *p;
+} mem[MaxN], *cur, *nil;
+//Initialize functions without memory pool
+Node *newNode(int v, Node *p)
+{
+	cur->c[0] = cur->c[1] = nil, cur->p = p;
+	cur->size = 1;
+	cur->key = v;
+	return cur++;
+}
+
+void Init()
+{
+	cur = mem;
+	nil = newNode(0, cur);
+	nil->size = 0;
+}
+//Splay tree
+struct SplayTree
+{
+	Node *root;
+	void Init()
+	{
+		root = nil;
+	}
+	void Pushup(Node *x)
+	{
+		if (x == nil)   return;
+		Pushdown(x); Pushdown(x->c[0]); Pushdown(x->c[1]);
+		x->size = x->c[0]->size + x->c[1]->size + 1;
+	}
+	void Pushdown(Node *x)
+	{
+		if (x == nil)   return;
+		//do something
+	}
+	void Rotate(Node *x, int f)
+	{
+		if (x == nil)   return;
+		Node *y = x->p;
+		y->c[f ^ 1] = x->c[f], x->p = y->p;
+		if (x->c[f] != nil)
+			x->c[f]->p = y;
+		if (y->p != nil)
+			y->p->c[y->p->c[1] == y] = x;
+		x->c[f] = y, y->p = x;
+		Pushup(y);
+	}
+	void Splay(Node *x, Node *f)
+	{
+		static Node *stack[maxn];
+		int top = 0;
+		stack[top++] = x;
+		for (Node *y = x; y != f;y = y->p)
+			stack[top++] = y->p;
+		while (top)
+			Pushdown(stack[--top]);
+
+		while (x->p != f)
+		{
+			Node *y = x->p;
+			if (y->p == f)
+				Rotate(x, x == y->c[0]);
+			else
+			{
+				int fd = y->p->c[0] == y;
+				if (y->c[fd] == x)
+					Rotate(x, fd ^ 1), Rotate(x, fd);
+				else
+					Rotate(y, fd), Rotate(x, fd);
+			}
+		}
+		Pushup(x);
+		if (f == nil)
+			root = x;
+	}
+	void Select(int k, Node *f)
+	{
+		Node *x = root;
+		Pushdown(x);
+		int tmp;
+		while ((tmp = x->c[0]->size) != k)
+		{
+			if (k < tmp)	x = x->c[0];
+			else
+				x = x->c[1], k -= tmp + 1;
+			Pushdown(x);
+		}
+		Splay(x, f);
+	}
+	void Select(int l, int r)
+	{
+		Select(l, nil), Select(r + 2, root);
+	}
+	Node *Make_tree(int a[], int l, int r, Node *p)
+	{
+		if (l > r)  return nil;
+		int mid = l + r >> 1;
+		Node *x = newNode(a[mid], p);
+		x->c[0] = Make_tree(a, l, mid - 1, x);
+		x->c[1] = Make_tree(a, mid + 1, r, x);
+		Pushup(x);
+		return x;
+	}
+	void Insert(int pos, int a[], int n)
+	{
+		Select(pos, nil), Select(pos + 1, root);
+		root->c[1]->c[0] = Make_tree(a, 0, n - 1, root->c[1]);
+		Splay(root->c[1]->c[0], nil);
+	}
+	void Insert(int v)
+	{
+		Node *x = root, *y = nil;
+		//`Need pushdown`
+		while (x != nil)
+		{
+			y = x;
+			y->size++;
+			x = x->c[v >= x->key];
+		}
+		y->c[v >= y->key] = x = newNode(v, y);
+		Splay(x, nil);
+	}
+	void Remove(int l, int r)
+	{
+		Select(l, r);
+		//Recycle(root->c[1]->c[0]);
+		root->c[1]->c[0] = nil;
+		Splay(root->c[1], nil);
+	}
+};
+

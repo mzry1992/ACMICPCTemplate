@@ -1,0 +1,53 @@
+\documentclass[a4paper, 10pt, twocolumn]{article}
+
+\setlength{\columnsep}{0.8cm}
+\usepackage{xeCJK}
+\setsansfont{Source Code Pro}
+
+\usepackage{listings}
+\lstset{
+	language=C++,
+	breaklines=true,
+	tabsize=2,
+	basicstyle=\sf\footnotesize,
+	numberstyle=\sf\footnotesize,
+	commentstyle=\sf\footnotesize,
+	numbers=left,
+	frame=leftline,
+	escapeinside=``,
+	extendedchars=false
+}
+
+\usepackage[landscape]{geometry}
+\geometry{left=2cm,right=1cm,top=1.2cm,bottom=1.5cm,headsep=0.1cm,footnotesep=0.1cm}
+\usepackage{courier}
+
+\usepackage[
+	CJKbookmarks=true,
+	colorlinks,
+	linkcolor=black,
+	anchorcolor=black,
+	citecolor=black
+]{hyperref}
+\AtBeginDvi{\special{pdf:tounicode UTF8-UCS2}}
+
+\usepackage{fancyhdr}
+
+\usepackage{sectsty}
+\sectionfont{\large}
+\subsectionfont{\normalsize}
+\subsubsectionfont{\small}
+
+\begin{document}
+\input settings.tex
+\input title.tex
+\tableofcontents\clearpage
+\input datastructure.tex
+\input dynamicProgramming.tex
+\input geometry.tex
+\input graph.tex
+\input math.tex
+\input search.tex
+\input string.tex
+\input tool.tex
+\end{document}
