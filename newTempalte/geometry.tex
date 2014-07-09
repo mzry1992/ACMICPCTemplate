@@ -21,6 +21,7 @@
 \subsubsection{Functions}
 \lstinputlisting{"./geometry/functions3d.cpp"}
 \subsubsection{Convex hull}
+Don't forget \textbf{Randomshuffle}!
 \lstinputlisting{"./geometry/convexHull3d.cpp"}
 
 \subsection{Circle}
@@ -30,4 +31,35 @@
 \lstinputlisting{"./geometry/circleUnion.cpp"}
 \subsubsection{Area of intersection part with polygon}
 \lstinputlisting{"./geometry/intersectionWithPolygon.cpp"}
+
+\subsection{Matrix}
+\subsubsection{基本矩阵}
+	按向量$\overrightarrow{(x,y,z)}$平移：
+	\[\begin{pmatrix}
+	1 & 0 & 0 & x\\ 
+	0 & 1 & 0 & y\\ 
+	0 & 0 & 1 & z\\ 
+	0 & 0 & 0 & 1
+	\end{pmatrix}\]\\
+	\\
+	按比例$(x,y,z)$缩放：
+	\[\begin{pmatrix}
+	x & 0 & 0 & 0\\ 
+	0 & y & 0 & 0\\ 
+	0 & 0 & z & 0\\ 
+	0 & 0 & 0 & 1
+	\end{pmatrix}\]\\
+	\\
+	绕单位向量$\overrightarrow{(x,y,z)}$旋转$angle$角度：
+	\[\begin{pmatrix}
+	x^2\times (1-c)+c & x\times y\times (1-c)-z\times s & x\times z\times (1-c)+y\times s & 0\\ 
+	y\times x\times (1-c)+z\times s & y^2\times (1-c)+c & y\times z\times (1-c)-x\times s & 0\\ 
+	x\times z\times (1-c)-y\times s & y\times z\times (1-c)+x\times s & z^2\times (1-c)+c & 0\\ 
+	0 & 0 & 0 & 1
+	\end{pmatrix}
+	\begin{cases}
+	s=sin(angle)\\
+	c=cos(angle)
+	\end{cases}\]
+	以上矩阵变换都把点当作列向量，旋转角度的正负由右手定则决定\\
 

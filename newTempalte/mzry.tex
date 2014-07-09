@@ -1,8 +1,12 @@
-\documentclass[a4paper, 10pt, twocolumn]{article}
+\documentclass[a4paper, 12pt]{article}
 
 \setlength{\columnsep}{0.8cm}
 \usepackage{xeCJK}
 \setsansfont{Source Code Pro}
+
+\setCJKmainfont{SimHei}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{SimHei}
 
 \usepackage{listings}
 \lstset{
@@ -18,7 +22,7 @@
 	extendedchars=false
 }
 
-\usepackage[landscape]{geometry}
+\usepackage{geometry}
 \geometry{left=2cm,right=1cm,top=1.2cm,bottom=1.5cm,headsep=0.1cm,footnotesep=0.1cm}
 \usepackage{courier}
 
@@ -38,6 +42,12 @@
 \subsectionfont{\normalsize}
 \subsubsectionfont{\small}
 
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\usepackage{indentfirst}
+\setlength{\parindent}{0em}
+
 \begin{document}
 \input settings.tex
 \input title.tex
@@ -50,4 +60,6 @@
 \input search.tex
 \input string.tex
 \input tool.tex
+\section{Appendix}
+  \input elfness.tex
 \end{document}

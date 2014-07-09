@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <string.h>
+#include <algorithm>
+#include <vector>
+#define maxn 300
+#define maxm 90010
+
+using namespace std;
+
+int match[maxn];						//标记是否匹配
+int st[maxn],aim[maxm],nxt[maxm],ln;	//边表
+int q[maxn];							//bfs队列
+int level[maxn];						//离根深度的奇偶性
+vector<int> ar[maxn];					//存每个点到根的路径
+vector<int> a;							//找到的一条增广路
+int n;
+void init() {
+  for(int i=0; i<n; i++)st[i]=-1;
+  ln=0;
+}
+void in_edge(int x,int y) {
+  aim[ln]=y;
+  nxt[ln]=st[x];
+  st[x]=ln++;
+}
+int lca(int p,int q) {					//求p和q的最近公共祖先
+  int ret=0;
+  while (ret<ar[p].size() && ret<ar[q].size() && ar[p][ret]==ar[q][ret]) ret++;
+  return ret-1;
+}
+int FindAlterRoad(int sp) {
+  int qn=1;
+  memset(level,-1,sizeof(level));
+  level[q[0]=sp]=1;
+  ar[sp].clear();
+  ar[sp].push_back(sp);
+  for (int p=0; p<qn; p++) {
+    int x=q[p];
+    for (int i=st[x]; i!=-1; i=nxt[i]) {
+      int u=aim[i];
+      if (match[u]==u) continue;
+      if (level[u]==-1) {			//u是未访问的点
+        if (match[u]==-1) {		//u是未匹配的,找到增广路
+          a=ar[x];
+          a.push_back(u);
+          return 1;
+        } else {					//u是已匹配的点
+          int v=match[u];
+          if (level[v]!=-1) continue;
+          ar[v]=ar[x];
+          ar[v].push_back(u);
+          ar[v].push_back(v);
+          level[u]=0;
+          level[v]=1;
+          q[qn++]=v;
+        }
+      } else if (level[u]==1) {			//u和x同为偶点.形成花
+        int root=lca(u,x);
+        vector<int> tmp=ar[x];
+        for (int i=ar[u].size()-1; i>root; i--) {
+          int y=ar[u][i];
+          tmp.push_back(y);
+          if (level[y]==0) {
+            level[y]=1;
+            ar[y]=tmp;
+            level[y]=1;
+            q[qn++]=y;
+          }
+        }
+        tmp=ar[u];
+        for (int i=ar[x].size()-1; i>root; i--) {
+          int y=ar[x][i];
+          tmp.push_back(y);
+          if (level[y]==0) {
+            level[y]=1;
+            ar[y]=tmp;
+            level[y]=1;
+            q[qn++]=y;
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+int MaximumMatch() {
+  int ret=0;							//最大匹配数
+  memset(match,-1,sizeof(match));
+  for (int i=0; i<n; i++)
+    if (match[i]==-1)
+      if (FindAlterRoad(i)) {
+        for (int i=0; i<a.size(); i+=2) {
+          int u=a[i],v=a[i+1];
+          match[u]=v;
+          match[v]=u;
+        }
+        ret++;
+      } else match[i]=i;
+  return ret;
+}
