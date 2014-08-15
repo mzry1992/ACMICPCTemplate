@@ -12,7 +12,7 @@ bool conPoint(Point p[],int n)
 bool conLine(Point p[],int n)
 {
 	for (int i = 2;i < n;i++)
-		if ((p[i]-p[0])*(p[1]-p[0]) != 0)
+		if ((p[i]-p[0])*(p[i-1]-p[0]) != 0)
 			return false;
 	return true;
 }
